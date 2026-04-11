@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pulse HK · Engineering Design</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0c0c0f;
+      --surface:   #141418;
+      --border:    #2a2a33;
+      --muted:     #6c6c7e;
+      --text:      #e8e8f0;
+      --text-dim:  #a0a0b2;
+      --accent:    #e87d4e;
+      --accent2:   #5b8af5;
+      --accent3:   #4ec9b0;
+      --accent4:   #c792ea;
+      --hot:       #ff6b6b;
+      --serif:     'Playfair Display', Georgia, serif;
+      --sans:      'Inter', system-ui, sans-serif;
+      --mono:      'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ─── Animated Background Gradient ─────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 70% 10%, rgba(232,125,78,.07) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 20% 80%, rgba(91,138,245,.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Layout ─────────────────────────────────────────────────────────── */
+    .container { max-width: 900px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 1; }
+    .wide      { max-width: 1100px; }
+
+    /* ─── Navigation ─────────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(12,12,15,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 0;
+    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; }
+    .nav-brand { font-weight: 700; font-size: 1rem; letter-spacing: .05em; color: var(--accent); }
+    .nav-links { display: flex; gap: 1.8rem; }
+    .nav-links a { color: var(--text-dim); text-decoration: none; font-size: .85rem; font-weight: 500;
+                   letter-spacing: .03em; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ─── Hero ───────────────────────────────────────────────────────────── */
+    .hero {
+      padding: 7rem 0 5rem;
+      position: relative;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .78rem; font-weight: 600; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--accent);
+      background: rgba(232,125,78,.1); border: 1px solid rgba(232,125,78,.2);
+      padding: .35rem .9rem; border-radius: 99px; margin-bottom: 1.8rem;
+    }
+    .hero-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%;
+                             background: var(--accent); animation: pulse-dot 2s infinite; }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: .4; transform: scale(.6); }
+    }
+
+    h1.hero-title {
+      font-family: var(--serif);
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      line-height: 1.15;
+      color: var(--text);
+      max-width: 700px;
+      margin-bottom: 1.6rem;
+    }
+    h1.hero-title em { font-style: italic; color: var(--accent); }
+
+    .hero-sub {
+      font-size: 1.1rem; color: var(--text-dim);
+      max-width: 560px; margin-bottom: 2.8rem; line-height: 1.8;
+    }
+
+    .hero-meta {
+      display: flex; gap: 2rem; flex-wrap: wrap;
+    }
+    .meta-pill {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .82rem; color: var(--muted);
+    }
+    .meta-pill span { color: var(--text-dim); font-weight: 500; }
+
+    /* ─── Section Reveal Animation ───────────────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── Section Header ─────────────────────────────────────────────────── */
+    .section { padding: 5rem 0; border-top: 1px solid var(--border); }
+
+    .section-label {
+      font-size: .72rem; font-weight: 700; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: .8rem;
+    }
+
+    h2.section-title {
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    h3.sub-title {
+      font-size: 1.15rem; font-weight: 600;
+      color: var(--text); margin: 2.4rem 0 .8rem;
+      display: flex; align-items: center; gap: .6rem;
+    }
+    h3.sub-title::before {
+      content: ''; display: inline-block;
+      width: 3px; height: 1.1em; border-radius: 2px;
+      background: var(--accent);
+    }
+
+    p, li { color: var(--text-dim); max-width: 72ch; }
+    p { margin-bottom: 1rem; }
+    ul, ol { padding-left: 1.4rem; margin-bottom: 1rem; }
+    li { margin-bottom: .4rem; }
+    strong { color: var(--text); font-weight: 600; }
+    em { color: var(--accent3); font-style: normal; }
+
+    /* ─── Diagram Card ───────────────────────────────────────────────────── */
+    .diagram-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2.5rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .diagram-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+    }
+    .diagram-title {
+      font-size: .78rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 1.4rem;
+    }
+    .diagram-title span {
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      padding: .25rem .7rem; border-radius: 5px;
+    }
+    .mermaid { text-align: center; }
+
+    /* Force readable Mermaid colours in dark context */
+    .mermaid svg { max-width: 100%; height: auto; }
+
+    /* ─── Call-out Boxes ─────────────────────────────────────────────────── */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(232,125,78,.05);
+      border-radius: 0 10px 10px 0;
+      padding: 1.1rem 1.4rem;
+      margin: 1.8rem 0;
+    }
+    .callout p { color: var(--text-dim); margin: 0; }
+    .callout strong { color: var(--accent); }
+
+    .callout.blue  { border-left-color: var(--accent2); background: rgba(91,138,245,.05); }
+    .callout.blue strong { color: var(--accent2); }
+    .callout.green { border-left-color: var(--accent3); background: rgba(78,201,176,.05); }
+    .callout.green strong { color: var(--accent3); }
+    .callout.purple{ border-left-color: var(--accent4); background: rgba(199,146,234,.05); }
+    .callout.purple strong { color: var(--accent4); }
+
+    /* ─── Step Flow ──────────────────────────────────────────────────────── */
+    .step-flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    .step {
+      background: var(--surface);
+      padding: 1.4rem 1.2rem;
+      position: relative;
+    }
+    .step-num {
+      font-size: .7rem; font-weight: 700; letter-spacing: .1em;
+      color: var(--accent); text-transform: uppercase; margin-bottom: .5rem;
+    }
+    .step-label {
+      font-weight: 600; color: var(--text); font-size: .95rem; margin-bottom: .3rem;
+    }
+    .step-desc { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+    .step-icon {
+      font-size: 1.4rem; margin-bottom: .6rem;
+    }
+
+    /* ─── Inline code ────────────────────────────────────────────────────── */
+    code {
+      font-family: var(--mono);
+      font-size: .82em;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      padding: .1em .4em; border-radius: 4px;
+      color: var(--accent3);
+    }
+
+    /* ─── Tag pills ──────────────────────────────────────────────────────── */
+    .tags { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.5rem 0; }
+    .tag {
+      font-size: .75rem; font-weight: 600; letter-spacing: .06em;
+      padding: .3rem .8rem; border-radius: 99px;
+      border: 1px solid;
+    }
+    .tag-orange { color: var(--accent); border-color: rgba(232,125,78,.3); background: rgba(232,125,78,.08); }
+    .tag-blue   { color: var(--accent2); border-color: rgba(91,138,245,.3); background: rgba(91,138,245,.08); }
+    .tag-green  { color: var(--accent3); border-color: rgba(78,201,176,.3); background: rgba(78,201,176,.08); }
+    .tag-purple { color: var(--accent4); border-color: rgba(199,146,234,.3); background: rgba(199,146,234,.08); }
+
+    /* ─── Memory Lifecycle Visual ────────────────────────────────────────── */
+    .mem-loop {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin: 2.5rem 0;
+      flex-wrap: wrap;
+    }
+    .mem-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      text-align: center;
+      min-width: 110px;
+      position: relative;
+      transition: border-color .3s, transform .3s;
+    }
+    .mem-node:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .mem-icon { font-size: 1.5rem; margin-bottom: .3rem; }
+    .mem-label { font-size: .78rem; font-weight: 600; color: var(--text); }
+    .mem-sub   { font-size: .7rem; color: var(--muted); margin-top: .15rem; }
+    .mem-arrow {
+      font-size: 1.1rem; color: var(--accent);
+      padding: 0 .3rem;
+      animation: arrow-slide 2s ease-in-out infinite;
+    }
+    @keyframes arrow-slide {
+      0%,100% { transform: translateX(0); opacity: 1; }
+      50%      { transform: translateX(5px); opacity: .5; }
+    }
+    .mem-node.highlight-orange { border-color: var(--accent); }
+    .mem-node.highlight-blue   { border-color: var(--accent2); }
+    .mem-node.highlight-green  { border-color: var(--accent3); }
+    .mem-node.highlight-purple { border-color: var(--accent4); }
+
+    /* ─── A2A Protocol Box ───────────────────────────────────────────────── */
+    .a2a-box {
+      background: linear-gradient(135deg, rgba(91,138,245,.08) 0%, rgba(78,201,176,.05) 100%);
+      border: 1px solid rgba(91,138,245,.25);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    .a2a-title {
+      font-size: .72rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--accent2); margin-bottom: 1rem;
+    }
+    .a2a-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1rem;
+    }
+    @media(max-width:600px){ .a2a-grid { grid-template-columns: 1fr; } }
+    .a2a-item { display: flex; flex-direction: column; gap: .3rem; }
+    .a2a-item-label { font-size: .78rem; font-weight: 700; color: var(--text); }
+    .a2a-item-desc  { font-size: .82rem; color: var(--muted); line-height: 1.5; }
+
+    /* ─── Divider ────────────────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 3rem 0;
+    }
+
+    /* ─── Footer ─────────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 0;
+      text-align: center;
+    }
+    footer p { font-size: .82rem; color: var(--muted); max-width: 100%; }
+    .footer-stack {
+      display: flex; gap: .8rem; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 1.2rem;
+    }
+
+    /* ─── Pulse animation for "live" badge ───────────────────────────────── */
+    @keyframes fade-up {
+      from { opacity:0; transform: translateY(16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .hero > .container > * {
+      animation: fade-up .9s ease both;
+    }
+    .hero > .container > *:nth-child(1) { animation-delay: .05s; }
+    .hero > .container > *:nth-child(2) { animation-delay: .15s; }
+    .hero > .container > *:nth-child(3) { animation-delay: .25s; }
+    .hero > .container > *:nth-child(4) { animation-delay: .35s; }
+
+    /* ─── Responsive ─────────────────────────────────────────────────────── */
+    @media(max-width:640px){
+      .nav-links { display: none; }
+      .step-flow { grid-template-columns: 1fr; }
+      .mem-loop  { flex-direction: column; gap: .5rem; }
+      .mem-arrow { transform: rotate(90deg); }
+    }
+
+    /* ─── Scrollbar ──────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track  { background: var(--bg); }
+    ::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 3px; }
+
+    /* ─── Code Block ─────────────────────────────────────────────────────── */
+    .code-block {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      margin: 2rem 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .code-toolbar {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      padding: .55rem 1rem;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+    }
+    .code-lang {
+      font-size: .65rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--accent3);
+      background: rgba(78,201,176,.1); border: 1px solid rgba(78,201,176,.2);
+      padding: .15rem .5rem; border-radius: 4px; font-family: var(--mono);
+    }
+    .code-file { color: #6e7681; font-family: var(--mono); font-size: .78rem; flex: 1; }
+    .code-block pre {
+      margin: 0; padding: 1.2rem 1.4rem;
+      overflow-x: auto; line-height: 1.75; background: transparent;
+    }
+    .code-block code {
+      font-family: var(--mono); font-size: .8rem;
+      background: transparent; border: none; padding: 0;
+      color: #c9d1d9; white-space: pre;
+    }
+    .kw  { color: #ff7b72; }          /* keywords, operators */
+    .an  { color: #79c0ff; }          /* annotations, decorators */
+    .cl  { color: #ffa657; }          /* class / type names */
+    .st  { color: #a5d6ff; }          /* strings */
+    .cm  { color: #6e7681; font-style: italic; } /* comments */
+    .nb  { color: #79c0ff; }          /* constants, numbers */
+    .mt  { color: #d2a8ff; }          /* method calls */
+    .va  { color: #e8e8f0; }          /* variables */
+    .op  { color: #ff7b72; }          /* operators */
+
+    /* ─── System Topology Diagram ────────────────────────────────────────── */
+    .topo-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .topo-persons { display: flex; gap: 2.5rem; justify-content: center; margin-bottom: .8rem; flex-wrap: wrap; }
+    .topo-person {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: .8rem 1.2rem; text-align: center; min-width: 130px;
+      transition: border-color .3s, transform .2s;
+    }
+    .topo-person:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .topo-person-icon { font-size: 1.8rem; margin-bottom: .3rem; }
+    .topo-person-name { font-size: .82rem; font-weight: 600; color: var(--text); }
+    .topo-person-sub  { font-size: .7rem; color: var(--muted); margin-top: .15rem; }
+    .topo-conn-v {
+      text-align: center; font-size: .72rem; color: var(--accent2);
+      letter-spacing: .06em; padding: .7rem 0; position: relative; width: 100%;
+    }
+    .topo-conn-v::before {
+      content: ''; position: absolute; left: 50%; top: 0; bottom: 0;
+      width: 1px; background: linear-gradient(to bottom, transparent, var(--accent2), transparent);
+      transform: translateX(-50%);
+    }
+    .topo-conn-v span { background: var(--bg); padding: 0 .8rem; position: relative; z-index: 1; }
+    .topo-app-box {
+      width: 100%; border: 1.5px solid var(--accent2);
+      border-radius: 16px; background: rgba(91,138,245,.03); overflow: hidden;
+    }
+    .topo-app-header {
+      background: rgba(91,138,245,.08); border-bottom: 1px solid rgba(91,138,245,.18);
+      padding: .55rem 1.2rem; font-size: .72rem; font-weight: 700;
+      color: var(--accent2); letter-spacing: .08em; text-transform: uppercase;
+    }
+    .topo-app-inner { padding: 1.2rem; display: flex; flex-direction: column; gap: .8rem; }
+    .topo-row { display: flex; align-items: stretch; justify-content: center; gap: .7rem; flex-wrap: wrap; }
+    .topo-comp {
+      background: var(--bg); border: 1px solid var(--clr, var(--border));
+      border-radius: 10px; padding: .7rem .9rem; text-align: center;
+      flex: 1; min-width: 120px; max-width: 210px;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+    .topo-comp:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    }
+    .topo-comp-icon { font-size: 1.2rem; margin-bottom: .25rem; }
+    .topo-comp-name { font-size: .78rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .topo-comp-tech { font-size: .62rem; color: var(--muted); margin-top: .18rem; font-family: var(--mono); line-height: 1.4; }
+    .topo-horiz-arrow { color: var(--accent2); font-size: 1.1rem; flex-shrink: 0; align-self: center; }
+    .topo-sep { height: 1px; background: var(--border); margin: .2rem 0; }
+    .topo-monitor-badge {
+      background: rgba(232,125,78,.06); border: 1px dashed rgba(232,125,78,.3);
+      border-radius: 8px; padding: .5rem 1rem; text-align: center;
+      font-size: .72rem; color: var(--accent);
+    }
+    .topo-externals { display: flex; gap: 2rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap; }
+    .topo-ext {
+      background: var(--surface); border: 1px solid var(--clr, var(--border));
+      border-radius: 12px; padding: .9rem 1.2rem; text-align: center;
+      min-width: 160px; flex: 1; max-width: 220px;
+      transition: transform .2s;
+    }
+    .topo-ext:hover { transform: translateY(-2px); }
+    .topo-ext-icon { font-size: 1.5rem; margin-bottom: .3rem; }
+    .topo-ext-name { font-size: .85rem; font-weight: 700; color: var(--text); }
+    .topo-ext-sub { font-size: .72rem; color: var(--muted); margin-top: .2rem; line-height: 1.5; }
+    .topo-ext-pill {
+      display: inline-block; font-size: .62rem; font-family: var(--mono);
+      background: rgba(255,255,255,.06); border: 1px solid var(--border);
+      border-radius: 4px; padding: .15rem .5rem; margin-top: .4rem; color: var(--text-dim);
+    }
+
+    /* ─── Message Flow (Sequence replacement) ───────────────────────────── */
+    .msg-flow { display: flex; flex-direction: column; gap: 0; margin: 1.2rem 0; }
+    .msg-group { margin-bottom: .5rem; }
+    .msg-group-label {
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--accent);
+      padding: .35rem .9rem; background: rgba(232,125,78,.06);
+      border-left: 2px solid var(--accent); margin-bottom: .2rem;
+      border-radius: 0 5px 5px 0;
+    }
+    .msg-group.blue .msg-group-label  { color: var(--accent2); background: rgba(91,138,245,.06);  border-left-color: var(--accent2); }
+    .msg-group.green .msg-group-label { color: var(--accent3); background: rgba(78,201,176,.06); border-left-color: var(--accent3); }
+    .msg-item {
+      display: flex; align-items: flex-start; gap: .6rem;
+      padding: .45rem .7rem; border-radius: 7px; transition: background .2s;
+    }
+    .msg-item:hover { background: rgba(255,255,255,.03); }
+    .msg-item.parallel { background: rgba(78,201,176,.04); border-left: 2px solid rgba(78,201,176,.25); border-radius: 0 7px 7px 0; }
+    .msg-num { font-family: var(--mono); font-size: .68rem; font-weight: 700; color: var(--muted); min-width: 1.6rem; text-align: right; padding-top: .18rem; flex-shrink: 0; }
+    .msg-actors { display: flex; align-items: center; gap: .35rem; flex-shrink: 0; min-width: 210px; }
+    .msg-actor {
+      font-size: .7rem; font-weight: 600; padding: .18rem .45rem;
+      border-radius: 5px; border: 1px solid; white-space: nowrap;
+    }
+    .a-client  { color: var(--accent);  border-color: rgba(232,125,78,.3);  background: rgba(232,125,78,.08); }
+    .a-ic      { color: var(--accent2); border-color: rgba(91,138,245,.3);  background: rgba(91,138,245,.08); }
+    .a-ex      { color: var(--accent4); border-color: rgba(199,146,234,.3); background: rgba(199,146,234,.08); }
+    .a-ms      { color: var(--accent3); border-color: rgba(78,201,176,.3);  background: rgba(78,201,176,.08); }
+    .a-sv      { color: var(--accent);  border-color: rgba(232,125,78,.3);  background: rgba(232,125,78,.08); }
+    .a-bf      { color: var(--accent4); border-color: rgba(199,146,234,.3); background: rgba(199,146,234,.08); }
+    .a-of      { color: var(--accent2); border-color: rgba(91,138,245,.3);  background: rgba(91,138,245,.08); }
+    .a-mem0    { color: var(--accent3); border-color: rgba(78,201,176,.3);  background: rgba(78,201,176,.08); }
+    .a-tl      { color: var(--hot);     border-color: rgba(255,107,107,.3); background: rgba(255,107,107,.08); }
+    .a-mt      { color: var(--accent4); border-color: rgba(199,146,234,.3); background: rgba(199,146,234,.08); }
+    .a-am      { color: var(--accent);  border-color: rgba(232,125,78,.3);  background: rgba(232,125,78,.08); }
+    .a-mc      { color: var(--accent2); border-color: rgba(91,138,245,.3);  background: rgba(91,138,245,.08); }
+    .a-dev     { color: var(--accent3); border-color: rgba(78,201,176,.3);  background: rgba(78,201,176,.08); }
+    .msg-arrow { font-size: .9rem; color: var(--muted); flex-shrink: 0; }
+    .msg-text  { font-size: .81rem; color: var(--text-dim); line-height: 1.55; flex: 1; }
+    .msg-note  { font-size: .75rem; color: var(--muted); font-style: italic; padding: .3rem .7rem .3rem 3rem; }
+    .msg-parallel-block { margin-left: 3rem; border-left: 2px solid rgba(78,201,176,.3); padding-left: .7rem; }
+    .msg-parallel-label { font-size: .67rem; color: var(--accent3); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: .3rem; }
+
+    /* ─── Planning Rounds Grid ───────────────────────────────────────────── */
+    .rounds-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; margin: 1.5rem 0; }
+    .round-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.2rem;
+      position: relative; overflow: hidden;
+      transition: transform .25s, border-color .25s, box-shadow .25s;
+    }
+    .round-card:hover { transform: translateY(-4px); border-color: var(--clr, var(--accent)); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+    .round-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: var(--clr, var(--accent)); }
+    .round-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--clr, var(--accent)); background: rgba(255,255,255,.05);
+      border: 1px solid var(--border); padding: .2rem .6rem;
+      border-radius: 99px; margin-bottom: .8rem;
+    }
+    .round-supervisor { font-size: .72rem; color: var(--muted); margin-bottom: .5rem; display: flex; align-items: center; gap: .4rem; }
+    .round-arrow { color: var(--clr, var(--accent)); font-size: .88rem; margin: .35rem 0; padding-left: .4rem; }
+    .round-agent {
+      display: flex; align-items: flex-start; gap: .6rem;
+      background: rgba(255,255,255,.04); border: 1px solid var(--border);
+      border-radius: 8px; padding: .5rem .7rem; margin-bottom: .5rem;
+    }
+    .round-agent-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .round-agent-name { font-size: .8rem; font-weight: 600; color: var(--text); }
+    .round-agent-action { font-size: .7rem; color: var(--muted); margin-top: .1rem; font-family: var(--mono); }
+    .round-output  { font-size: .74rem; font-family: var(--mono); color: var(--accent3); background: rgba(78,201,176,.06); border: 1px solid rgba(78,201,176,.15); border-radius: 6px; padding: .4rem .7rem; margin-top: .5rem; }
+    .round-mem-write { font-size: .72rem; color: var(--accent4); background: rgba(199,146,234,.06); border: 1px solid rgba(199,146,234,.15); border-radius: 6px; padding: .35rem .65rem; margin-top: .4rem; font-family: var(--mono); }
+
+    /* ─── Identity Priority Chain ────────────────────────────────────────── */
+    .priority-chain { display: flex; flex-direction: column; gap: 0; margin: 1.5rem 0; }
+    .priority-item {
+      display: flex; gap: 1rem; padding: 1rem 1.2rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; margin-bottom: .6rem;
+      transition: border-color .2s, transform .2s;
+      align-items: flex-start;
+    }
+    .priority-item:hover { border-color: var(--clr, var(--accent)); transform: translateX(3px); }
+    .priority-num { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; color: var(--clr, var(--accent)); min-width: 2rem; text-align: center; flex-shrink: 0; }
+    .priority-content { flex: 1; }
+    .priority-label { font-size: .9rem; font-weight: 600; color: var(--text); margin-bottom: .3rem; }
+    .priority-detail { font-size: .78rem; color: var(--muted); line-height: 1.6; margin-bottom: .3rem; }
+    .priority-code { font-family: var(--mono); font-size: .74rem; color: var(--accent3); }
+    .priority-fallback { text-align: center; font-size: .72rem; color: var(--muted); padding: .1rem 0 .4rem; }
+    .priority-fallback::after { content: '↓ fallback'; }
+
+    /* ─── Screenshot Frame ──────────────────────────────────────────────── */
+    .screenshot-frame { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin: 2rem 0; }
+    .screenshot-toolbar {
+      background: #1a1a24; border-bottom: 1px solid var(--border);
+      padding: .65rem 1rem; display: flex; align-items: center; gap: .8rem;
+    }
+    .screenshot-dots { display: flex; gap: .4rem; }
+    .screenshot-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+    .screenshot-url {
+      flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      border-radius: 5px; padding: .22rem .9rem; font-size: .75rem;
+      font-family: var(--mono); color: var(--text-dim);
+    }
+    .screenshot-img { width: 100%; height: auto; display: block; }
+    .screenshot-caption { padding: .7rem 1rem; font-size: .78rem; color: var(--muted); border-top: 1px solid var(--border); font-style: italic; }
+
+    /* ─── Insight Card Grid ─────────────────────────────────────────────── */
+    .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; margin: 2rem 0; }
+    .insight-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 1.3rem;
+      transition: transform .2s, border-color .2s;
+    }
+    .insight-card:hover { transform: translateY(-3px); border-color: var(--clr, var(--border)); }
+    .insight-card::before { content:''; display:block; width:2.5rem; height:3px; background: var(--clr, var(--accent)); border-radius: 2px; margin-bottom: .8rem; }
+    .insight-title { font-size: .88rem; font-weight: 700; color: var(--text); margin-bottom: .5rem; }
+    .insight-body  { font-size: .8rem; color: var(--muted); line-height: 1.65; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ NAV ══ -->
+<nav>
+  <div class="container">
+    <div class="nav-brand">⬡ Pulse HK · Engineering</div>
+    <div class="nav-links">
+      <a href="#architecture">Architecture</a>
+      <a href="#a2a">A2A Protocol</a>
+      <a href="#memory">Memory</a>
+      <a href="#agents">Agents</a>
+      <a href="#identity">Identity</a>
+      <a href="#monitor">Monitor</a>
+      <a href="#insights">Insights</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ HERO ══ -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Engineering Blog · April 2026</div>
+    <h1 class="hero-title">
+      How we built a <em>memory-first</em><br/>multi-agent shopping companion
+    </h1>
+    <p class="hero-sub">
+      A deep dive into the Pulse HK architecture — supervisor orchestration, A2A protocol
+      exposure, and a Mem0-backed long-term memory loop that makes every conversation
+      feel like the system actually knows you.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-pill">📦 <span>Spring Boot 3 · LangChain4j · Mem0</span></div>
+      <div class="meta-pill">🧠 <span>Ollama / Qwen3</span></div>
+      <div class="meta-pill">🔗 <span>A2A Protocol 0.3</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════ ARCHITECTURE ══ -->
+<section class="section reveal" id="architecture">
+  <div class="container wide">
+    <div class="section-label">C4 · Level 1 — System Context</div>
+    <h2 class="section-title">The 10,000-foot view</h2>
+    <p>
+      Pulse HK exposes itself to the outside world as a single <strong>A2A agent endpoint</strong>.
+      Clients — whether a mobile app, a developer script, or another AI agent — interact through
+      a standard JSON-RPC envelope. Behind that single surface live three specialised sub-agents,
+      a supervisor, a persistent memory store, and a local LLM.
+    </p>
+
+    <div class="diagram-card reveal">
+      <div class="diagram-title"><span>System Topology — Pulse HK</span></div>
+      <div class="topo-wrap">
+        <div class="topo-persons">
+          <div class="topo-person">
+            <div class="topo-person-icon">🧑</div>
+            <div class="topo-person-name">HK Resident</div>
+            <div class="topo-person-sub">Natural language queries</div>
+          </div>
+          <div class="topo-person">
+            <div class="topo-person-icon">🤖</div>
+            <div class="topo-person-name">Developer / AI Agent</div>
+            <div class="topo-person-sub">A2A JSON-RPC integration</div>
+          </div>
+        </div>
+        <div class="topo-conn-v"><span>A2A JSON-RPC · HTTP POST /offer/</span></div>
+        <div class="topo-app-box">
+          <div class="topo-app-header">☕ Spring Boot Application &nbsp;·&nbsp; :8081/offer</div>
+          <div class="topo-app-inner">
+            <div class="topo-row">
+              <div class="topo-comp" style="--clr: var(--accent2)">
+                <div class="topo-comp-icon">🛡️</div>
+                <div class="topo-comp-name">UserContext Interceptor</div>
+                <div class="topo-comp-tech">HandlerInterceptor → ThreadLocal<br/>JWT → X-User-Id → metadata</div>
+              </div>
+              <div class="topo-horiz-arrow">→</div>
+              <div class="topo-comp" style="--clr: var(--accent2)">
+                <div class="topo-comp-icon">⚙️</div>
+                <div class="topo-comp-name">CustomAgent Executor</div>
+                <div class="topo-comp-tech">AgentExecutor<br/>AgenticScope.writeState(userId)</div>
+              </div>
+              <div class="topo-horiz-arrow">→</div>
+              <div class="topo-comp" style="--clr: var(--accent3)">
+                <div class="topo-comp-icon">💾</div>
+                <div class="topo-comp-name">PulseChat MemoryStore</div>
+                <div class="topo-comp-tech">ChatMemoryStore<br/>POST /search ×3 topics</div>
+              </div>
+            </div>
+            <div class="topo-sep"></div>
+            <div class="topo-row">
+              <div class="topo-comp" style="--clr: var(--accent); flex: none; width: 250px; max-width: 250px;">
+                <div class="topo-comp-icon">🎯</div>
+                <div class="topo-comp-name">PulseSupervisorAgent</div>
+                <div class="topo-comp-tech">supervisorBuilder · plan-then-delegate<br/>MessageWindowChatMemory(20) keyed by taskId</div>
+              </div>
+            </div>
+            <div class="topo-row">
+              <div class="topo-comp" style="--clr: var(--accent4)">
+                <div class="topo-comp-icon">🏷️</div>
+                <div class="topo-comp-name">BrandFinder Agent</div>
+                <div class="topo-comp-tech">@Agent · topic=brands<br/>mem(5)</div>
+              </div>
+              <div class="topo-comp" style="--clr: var(--accent4)">
+                <div class="topo-comp-icon">🛒</div>
+                <div class="topo-comp-name">OfferFinder Agent</div>
+                <div class="topo-comp-tech">@Agent · topic=preferences<br/>mem(7) + OfferFinderTools</div>
+              </div>
+              <div class="topo-comp" style="--clr: var(--accent4)">
+                <div class="topo-comp-icon">💬</div>
+                <div class="topo-comp-name">GeneralQA Agent</div>
+                <div class="topo-comp-tech">@Agent · topic=general<br/>mem(5)</div>
+              </div>
+            </div>
+            <div class="topo-sep"></div>
+            <div class="topo-monitor-badge">
+              👁️&nbsp; <strong>AgentMonitor</strong> &nbsp;·&nbsp; registered as <code>.listener(agentMonitor)</code> &nbsp;·&nbsp; <code>inheritedBySubagents = true</code><br/>
+              AgentMonitorController &nbsp;·&nbsp; /report &nbsp;·&nbsp; /executions &nbsp;·&nbsp; /summary
+            </div>
+          </div>
+        </div>
+        <div class="topo-conn-v"><span>HTTP REST</span></div>
+        <div class="topo-externals">
+          <div class="topo-ext" style="--clr: var(--accent3)">
+            <div class="topo-ext-icon">🧠</div>
+            <div class="topo-ext-name">Mem0</div>
+            <div class="topo-ext-sub">Self-hosted memory service<br/>Semantic search with inference</div>
+            <div class="topo-ext-pill">POST /memories · POST /search</div>
+          </div>
+          <div class="topo-ext" style="--clr: var(--accent4)">
+            <div class="topo-ext-icon">🦙</div>
+            <div class="topo-ext-name">Ollama / Qwen3</div>
+            <div class="topo-ext-sub">Local LLM inference<br/>All agents share one endpoint</div>
+            <div class="topo-ext-pill">HTTP · OpenAI-compat API</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">How the supervisor is wired at startup</h3>
+    <div class="code-block reveal">
+      <div class="code-toolbar">
+        <span class="code-lang">Java</span>
+        <span class="code-file">AgentConfig.java</span>
+      </div>
+      <pre><code><span class="cm">// Every sub-agent is an interface — no implementation code. LangChain4j generates proxies.</span>
+<span class="an">@Bean</span>
+<span class="kw">public</span> <span class="cl">PulseSupervisorAgent</span> <span class="mt">supervisorAgent</span>(
+    <span class="cl">ChatModel</span> chatModel, <span class="cl">BrandFinderAgent</span> brandFinderAgent,
+    <span class="cl">OfferFinderAgent</span> offerFinderAgent, <span class="cl">GeneralQAAgent</span> generalQAAgent,
+    <span class="cl">AgentMonitor</span> agentMonitor) {
+
+  <span class="kw">return</span> <span class="cl">AgenticServices</span>
+    .<span class="mt">supervisorBuilder</span>(<span class="cl">PulseSupervisorAgent</span>.<span class="kw">class</span>)
+    .<span class="mt">chatModel</span>(chatModel)
+    <span class="cm">// 20 slots: supervisor loops multiple planning rounds per request.</span>
+    <span class="cm">// keyed by A2A taskId — each request gets a fresh, isolated window.</span>
+    .<span class="mt">chatMemoryProvider</span>(memoryId -&gt; <span class="cl">MessageWindowChatMemory</span>.<span class="mt">withMaxMessages</span>(<span class="nb">20</span>))
+    .<span class="mt">subAgents</span>(brandFinderAgent, offerFinderAgent, generalQAAgent)
+    <span class="cm">// AgentMonitor.inheritedBySubagents() = true, so BrandFinder/OfferFinder/GeneralQA</span>
+    <span class="cm">// are all tracked automatically — zero per-agent wiring needed.</span>
+    .<span class="mt">listener</span>(agentMonitor)
+    .<span class="mt">build</span>();
+}
+
+<span class="cm">// BrandFinderAgent: interface with exactly one @Agent-annotated method</span>
+<span class="an">@Bean</span>
+<span class="kw">public</span> <span class="cl">BrandFinderAgent</span> <span class="mt">brandFinderAgent</span>(<span class="cl">ChatModel</span> chatModel,
+    <span class="cl">Mem0Client</span> mem0Client, <span class="cl">Mem0Properties</span> mem0Properties) {
+  <span class="kw">return</span> <span class="cl">AgenticServices</span>.<span class="mt">agentBuilder</span>(<span class="cl">BrandFinderAgent</span>.<span class="kw">class</span>)
+    .<span class="mt">chatModel</span>(chatModel)
+    .<span class="mt">tools</span>(<span class="kw">new</span> <span class="cl">AgentMemoryTool</span>(mem0Client, mem0Properties,
+               <span class="cl">AgentMemoryTool</span>.<span class="nb">TOPIC_BRANDS</span>, <span class="st">"BrandFinderAgent"</span>))
+    <span class="cm">// system + user + saveMemory call + result + final AI = 5 slots exactly</span>
+    .<span class="mt">chatMemoryProvider</span>(memoryId -&gt; <span class="cl">MessageWindowChatMemory</span>.<span class="mt">withMaxMessages</span>(<span class="nb">5</span>))
+    .<span class="mt">build</span>();
+}</code></pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ A2A SECTION ══ -->
+<section class="section reveal" id="a2a">
+  <div class="container">
+    <div class="section-label">Protocol</div>
+    <h2 class="section-title">A2A: why it matters</h2>
+
+    <p>
+      The Agent-to-Agent protocol (A2A) is Google's open standard for inter-agent communication.
+      By exposing Pulse HK as an A2A endpoint, it becomes a first-class citizen in any multi-agent ecosystem —
+      discoverable via <code>AgentCard</code>, invokable by any A2A-compliant client, 
+      and composable into larger agent pipelines without any bespoke integration.
+    </p>
+
+    <div class="a2a-box reveal">
+      <div class="a2a-title">⬡ What A2A gives Pulse HK</div>
+      <div class="a2a-grid">
+        <div class="a2a-item">
+          <div class="a2a-item-label">🪪 Self-describing identity</div>
+          <div class="a2a-item-desc">The <code>AgentCard</code> advertises name, version, capabilities, skills, and security requirements — any A2A client can auto-discover Pulse HK's interface.</div>
+        </div>
+        <div class="a2a-item">
+          <div class="a2a-item-label">📨 Standardised message envelope</div>
+          <div class="a2a-item-desc">Requests arrive as <code>message/send</code> JSON-RPC calls. <code>RequestContext</code> carries the task ID, message parts, and optional metadata for identity.</div>
+        </div>
+        <div class="a2a-item">
+          <div class="a2a-item-label">🆔 Task lifecycle management</div>
+          <div class="a2a-item-desc">Each call gets an isolated <strong>task ID</strong> — Pulse HK uses this as the <code>@MemoryId</code> for the supervisor's chat window, ensuring zero cross-request state leakage.</div>
+        </div>
+        <div class="a2a-item">
+          <div class="a2a-item-label">🔐 Identity in metadata</div>
+          <div class="a2a-item-desc">When no HTTP headers are present, A2A's <code>message.metadata</code> carries <code>userId</code> and <code>countryCode</code> — enabling agent-to-agent calls to propagate identity automatically.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screenshot-frame reveal">
+      <div class="screenshot-toolbar">
+        <div class="screenshot-dots">
+          <div class="screenshot-dot dot-r"></div>
+          <div class="screenshot-dot dot-y"></div>
+          <div class="screenshot-dot dot-g"></div>
+        </div>
+        <div class="screenshot-url">http://localhost:3001 &nbsp;·&nbsp; A2A UI — sending a message/send to Pulse HK</div>
+      </div>
+      <img class="screenshot-img" src="A2AUI.png" alt="A2A UI screenshot showing a message/send call to Pulse HK agent" />
+      <div class="screenshot-caption">
+        A2A UI — a React client that auto-discovers the AgentCard and sends <code>message/send</code> JSON-RPC calls.
+        The agent's response arrives as a completed Task with <code>state: completed</code> and an <code>artifacts</code> array.
+      </div>
+    </div>
+
+    <div class="diagram-card reveal">
+      <div class="diagram-title"><span>A2A Request Lifecycle — Message Flow</span></div>
+      <div class="msg-flow">
+        <div class="msg-item">
+          <div class="msg-num">1</div>
+          <div class="msg-actors"><span class="msg-actor a-client">🧑 A2A Client</span><span class="msg-arrow">→</span><span class="msg-actor a-ic">Interceptor</span></div>
+          <div class="msg-text"><strong>POST /offer/ · message/send</strong> — {userId, query, metadata}</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">2</div>
+          <div class="msg-actors"><span class="msg-actor a-ic">Interceptor</span><span class="msg-arrow">⟳</span><span class="msg-actor a-ic">Interceptor</span></div>
+          <div class="msg-text">Resolve identity: JWT Bearer → X-User-Id headers → A2A metadata fallback</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">3</div>
+          <div class="msg-actors"><span class="msg-actor a-ic">Interceptor</span><span class="msg-arrow">→</span><span class="msg-actor a-ex">Executor</span></div>
+          <div class="msg-text"><code>UserContextHolder.set(UserContext)</code> via ThreadLocal</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">4</div>
+          <div class="msg-actors"><span class="msg-actor a-ex">Executor</span><span class="msg-arrow">⟳</span><span class="msg-actor a-ex">Executor</span></div>
+          <div class="msg-text"><code>AgenticScope.writeState(userId, countryCode)</code> keyed by userId</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">5</div>
+          <div class="msg-actors"><span class="msg-actor a-ex">Executor</span><span class="msg-arrow">→</span><span class="msg-actor a-ms">MemoryStore</span></div>
+          <div class="msg-text"><code>buildEnrichedPrompt(userId, query)</code></div>
+        </div>
+        <div class="msg-parallel-block">
+          <div class="msg-parallel-label">⟳ parallel — 3 topic searches</div>
+          <div class="msg-item parallel">
+            <div class="msg-num">6a</div>
+            <div class="msg-actors"><span class="msg-actor a-ms">MemoryStore</span><span class="msg-arrow">→</span><span class="msg-actor a-mem0">🧠 Mem0</span></div>
+            <div class="msg-text"><code>POST /search</code> — topic=brands</div>
+          </div>
+          <div class="msg-item parallel">
+            <div class="msg-num">6b</div>
+            <div class="msg-actors"><span class="msg-actor a-ms">MemoryStore</span><span class="msg-arrow">→</span><span class="msg-actor a-mem0">🧠 Mem0</span></div>
+            <div class="msg-text"><code>POST /search</code> — topic=preferences</div>
+          </div>
+          <div class="msg-item parallel">
+            <div class="msg-num">6c</div>
+            <div class="msg-actors"><span class="msg-actor a-ms">MemoryStore</span><span class="msg-arrow">→</span><span class="msg-actor a-mem0">🧠 Mem0</span></div>
+            <div class="msg-text"><code>POST /search</code> — topic=general</div>
+          </div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">7</div>
+          <div class="msg-actors"><span class="msg-actor a-mem0">🧠 Mem0</span><span class="msg-arrow">↩</span><span class="msg-actor a-ms">MemoryStore</span></div>
+          <div class="msg-text">Past memories per topic → assembled into structured context block prepended to user message</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">8</div>
+          <div class="msg-actors"><span class="msg-actor a-ms">MemoryStore</span><span class="msg-arrow">↩</span><span class="msg-actor a-ex">Executor</span></div>
+          <div class="msg-text">Enriched prompt returned</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">9</div>
+          <div class="msg-actors"><span class="msg-actor a-ex">Executor</span><span class="msg-arrow">→</span><span class="msg-actor a-sv">🎯 Supervisor</span></div>
+          <div class="msg-text"><code>invoke(taskId, enrichedPrompt)</code> — taskId used as <code>@MemoryId</code></div>
+        </div>
+        <div class="msg-note">Plan-then-delegate loop executes (see Agents section for full detail) …</div>
+        <div class="msg-item">
+          <div class="msg-num">10</div>
+          <div class="msg-actors"><span class="msg-actor a-sv">🎯 Supervisor</span><span class="msg-arrow">↩</span><span class="msg-actor a-ex">Executor</span></div>
+          <div class="msg-text">Final synthesised answer</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">11</div>
+          <div class="msg-actors"><span class="msg-actor a-ex">Executor</span><span class="msg-arrow">⟳</span><span class="msg-actor a-ex">Executor</span></div>
+          <div class="msg-text"><code>UserContextHolder.clear()</code> — also called in <code>afterCompletion()</code> for defence-in-depth</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">12</div>
+          <div class="msg-actors"><span class="msg-actor a-ex">Executor</span><span class="msg-arrow">↩</span><span class="msg-actor a-client">🧑 A2A Client</span></div>
+          <div class="msg-text">A2A Task result — <code>{state: "completed", artifacts: [{text: "PARKNSHOP offers for Kowloon Dairy…"}]}</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout blue">
+      <p><strong>Key insight:</strong> The A2A task ID and the userId serve different purposes.
+      The task ID scopes the supervisor's short-term planning memory — it resets on every call.
+      The userId scopes Mem0 — it accumulates across every call, building the personalisation layer.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════ MEMORY SECTION ══ -->
+<section class="section reveal" id="memory">
+  <div class="container">
+    <div class="section-label">Long-Term Memory</div>
+    <h2 class="section-title">The memory loop that makes it personal</h2>
+
+    <p>
+      The design principle is simple: <strong>short-term memory lives in a message window;
+      long-term memory lives in Mem0</strong>. The two never mix inside the same buffer.
+      This separation is the single most important architectural decision in the system.
+    </p>
+
+    <h3 class="sub-title">Why inject into the prompt, not into chat history?</h3>
+
+    <p>
+      An early prototype loaded Mem0 memories as <code>SystemMessage</code> entries
+      and returned them from <code>ChatMemoryStore.getMessages()</code>. It broke badly:
+      the supervisor's planner LLM saw brand names from the user's memory and hallucinated
+      agent names from them — routing a request for <em>Kellogg</em> to an agent called
+      <em>KelloggAgent</em> that didn't exist.
+    </p>
+
+    <div class="callout">
+      <p><strong>The fix:</strong> <code>getMessages()</code> returns an empty list. Memories
+      are prepended as a structured text block at the top of the user's next message —
+      treated as factual context, not instructions.</p>
+    </div>
+
+    <!-- Memory lifecycle visual -->
+    <div class="mem-loop reveal">
+      <div class="mem-node highlight-blue">
+        <div class="mem-icon">📥</div>
+        <div class="mem-label">User Query</div>
+        <div class="mem-sub">arrives via A2A</div>
+      </div>
+      <div class="mem-arrow">➜</div>
+      <div class="mem-node highlight-green">
+        <div class="mem-icon">🔍</div>
+        <div class="mem-label">Mem0 Search</div>
+        <div class="mem-sub">3 topic filters</div>
+      </div>
+      <div class="mem-arrow">➜</div>
+      <div class="mem-node highlight-orange">
+        <div class="mem-icon">📝</div>
+        <div class="mem-label">Enrich Prompt</div>
+        <div class="mem-sub">prepend memories</div>
+      </div>
+      <div class="mem-arrow">➜</div>
+      <div class="mem-node highlight-purple">
+        <div class="mem-icon">🤖</div>
+        <div class="mem-label">Agent Execution</div>
+        <div class="mem-sub">supervisor + sub-agents</div>
+      </div>
+      <div class="mem-arrow">➜</div>
+      <div class="mem-node highlight-green">
+        <div class="mem-icon">💾</div>
+        <div class="mem-label">Save Memory</div>
+        <div class="mem-sub">tagged by topic</div>
+      </div>
+      <div class="mem-arrow">↩</div>
+    </div>
+
+    <div class="diagram-card reveal">
+      <div class="diagram-title"><span>Memory Pipeline — Creation &amp; Recovery across Requests</span></div>
+      <div class="msg-flow">
+        <div class="msg-item">
+          <div class="msg-num">→</div>
+          <div class="msg-actors"><span class="msg-actor a-client">User Query</span><span class="msg-arrow">→</span><span class="msg-actor a-ic">Interceptor</span></div>
+          <div class="msg-text">Resolves <code>userId</code> from JWT / header / A2A metadata</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">→</div>
+          <div class="msg-actors"><span class="msg-actor a-ex">Executor</span><span class="msg-arrow">→</span><span class="msg-actor a-ms">MemStore</span></div>
+          <div class="msg-text"><code>buildEnrichedPrompt(userId, query)</code></div>
+        </div>
+        <div class="msg-parallel-block">
+          <div class="msg-parallel-label">3 parallel POST /search calls with metadata filters</div>
+          <div class="msg-item parallel">
+            <div class="msg-num">a</div>
+            <div class="msg-actors"><span class="msg-actor a-ms">MemStore</span><span class="msg-arrow">→</span><span class="msg-actor a-mem0">Mem0</span></div>
+            <div class="msg-text"><code>{"AND": [{"metadata.topic": "brands"}]}</code> → <em>"User is interested in Kowloon Dairy products"</em></div>
+          </div>
+          <div class="msg-item parallel">
+            <div class="msg-num">b</div>
+            <div class="msg-actors"><span class="msg-actor a-ms">MemStore</span><span class="msg-arrow">→</span><span class="msg-actor a-mem0">Mem0</span></div>
+            <div class="msg-text"><code>{"AND": [{"metadata.topic": "preferences"}]}</code> → <em>"User checked PARKNSHOP; $4–$36"</em></div>
+          </div>
+          <div class="msg-item parallel">
+            <div class="msg-num">c</div>
+            <div class="msg-actors"><span class="msg-actor a-ms">MemStore</span><span class="msg-arrow">→</span><span class="msg-actor a-mem0">Mem0</span></div>
+            <div class="msg-text"><code>{"AND": [{"metadata.topic": "general"}]}</code> → (empty for first-time users)</div>
+          </div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-num">→</div>
+          <div class="msg-actors"><span class="msg-actor a-ms">MemStore</span><span class="msg-arrow">↩</span><span class="msg-actor a-ex">Executor</span></div>
+          <div class="msg-text">Enriched prompt with structured preamble: <em>Brand interests · Offer preferences · General interests · User request</em></div>
+        </div>
+        <div class="msg-group">
+          <div class="msg-group-label">Agent execution — memory writes per sub-agent</div>
+          <div class="msg-item">
+            <div class="msg-num">W1</div>
+            <div class="msg-actors"><span class="msg-actor a-bf">BrandFinder</span><span class="msg-arrow">→</span><span class="msg-actor a-mem0">Mem0</span></div>
+            <div class="msg-text"><code>POST /memories</code> — <code>{topic: "brands", source: "BrandFinderAgent"}</code><br/><em>"User interested in Kowloon Dairy products"</em></div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">W2</div>
+            <div class="msg-actors"><span class="msg-actor a-of">OfferFinder</span><span class="msg-arrow">→</span><span class="msg-actor a-mem0">Mem0</span></div>
+            <div class="msg-text"><code>POST /memories</code> — <code>{topic: "preferences", source: "OfferFinderAgent"}</code><br/><em>"User checked PARKNSHOP Kowloon Dairy; price range $4–$36"</em></div>
+          </div>
+        </div>
+        <div class="msg-note">↻ On the <em>next</em> request, steps a/b/c will return these saved memories, personalising the enriched prompt automatically</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Topic-scoped metadata — the key to clean retrieval</h3>
+
+    <p>
+      Every memory written to Mem0 carries two metadata fields: <code>topic</code> and <code>source</code>.
+      At retrieval time, three parallel <code>POST /search</code> calls each filter by one topic bucket,
+      so the enriched prompt renders memories in clean labelled sections.
+    </p>
+
+    <div class="step-flow reveal">
+      <div class="step">
+        <div class="step-icon">🏷️</div>
+        <div class="step-num">Topic · brands</div>
+        <div class="step-label">BrandFinderAgent</div>
+        <div class="step-desc">"User is interested in Kowloon Dairy products"</div>
+      </div>
+      <div class="step">
+        <div class="step-icon">🛒</div>
+        <div class="step-num">Topic · preferences</div>
+        <div class="step-label">OfferFinderAgent</div>
+        <div class="step-desc">"User checked PARKNSHOP Kowloon Dairy; price range $4–$36"</div>
+      </div>
+      <div class="step">
+        <div class="step-icon">💬</div>
+        <div class="step-num">Topic · general</div>
+        <div class="step-label">GeneralQAAgent</div>
+        <div class="step-desc">"User asked about healthy milk options in Hong Kong"</div>
+      </div>
+    </div>
+
+    <div class="callout green">
+      <p><strong>Mem0 infer mode:</strong> With <code>infer: true</code>, Mem0 runs its own LLM pipeline
+      over the raw text and extracts semantic facts — it may split "User checked PARKNSHOP Kowloon Dairy; price $4–$36"
+      into separate memory nodes for the supermarket and the price range, improving future recall precision.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ AGENT SECTION ══ -->
+<section class="section reveal" id="agents">
+  <div class="container">
+    <div class="section-label">Orchestration</div>
+    <h2 class="section-title">Supervisor → Sub-agent topology</h2>
+
+    <p>
+      The supervisor knows nothing about domains. The sub-agents know nothing about planning.
+      This is the core design invariant that keeps the system testable and extensible.
+    </p>
+
+    <div class="diagram-card reveal">
+      <div class="diagram-title"><span>Plan-then-Delegate — "What are the offers for Kowloon Dairy?"</span></div>
+      <div class="rounds-grid">
+        <div class="round-card" style="--clr: var(--accent)">
+          <div class="round-badge">● Round 1</div>
+          <div class="round-supervisor">🎯 PulseSupervisorAgent plans…</div>
+          <div class="round-arrow" style="--clr: var(--accent)">↓ delegate to BrandFinder</div>
+          <div class="round-agent">
+            <div class="round-agent-icon">🏷️</div>
+            <div>
+              <div class="round-agent-name">BrandFinderAgent</div>
+              <div class="round-agent-action">findBrandName("Kowloon Dairy offers?")</div>
+            </div>
+          </div>
+          <div class="round-mem-write">💾 saveMemory(topic=brands)<br/>"User interested in Kowloon Dairy"</div>
+          <div class="round-output">↩ "Kowloon Dairy"</div>
+        </div>
+        <div class="round-card" style="--clr: var(--accent2)">
+          <div class="round-badge">● Round 2</div>
+          <div class="round-supervisor">🎯 PulseSupervisorAgent plans…</div>
+          <div class="round-arrow" style="--clr: var(--accent2)">↓ delegate to OfferFinder</div>
+          <div class="round-agent">
+            <div class="round-agent-icon">🛒</div>
+            <div>
+              <div class="round-agent-name">OfferFinderAgent</div>
+              <div class="round-agent-action">findOfferForBrands("Kowloon Dairy")</div>
+            </div>
+          </div>
+          <div class="round-agent" style="border-color: rgba(255,107,107,.2)">
+            <div class="round-agent-icon">🔧</div>
+            <div>
+              <div class="round-agent-name" style="color: var(--hot);">OfferFinderTools</div>
+              <div class="round-agent-action">getOfferDetails("Kowloon Dairy") → PARKNSHOP $4–$36</div>
+            </div>
+          </div>
+          <div class="round-mem-write">💾 saveMemory(topic=preferences)<br/>"User checked PARKNSHOP; $4–$36"</div>
+          <div class="round-output">↩ Formatted offer list</div>
+        </div>
+        <div class="round-card" style="--clr: var(--accent3)">
+          <div class="round-badge">● Round 3</div>
+          <div class="round-supervisor">🎯 PulseSupervisorAgent plans…</div>
+          <div class="round-arrow" style="--clr: var(--accent3)">↓ no more delegation needed</div>
+          <div class="round-agent" style="border-color: rgba(78,201,176,.3)">
+            <div class="round-agent-icon">✅</div>
+            <div>
+              <div class="round-agent-name" style="color: var(--accent3)">Synthesise final answer</div>
+              <div class="round-agent-action">Combines extracted brand + offer results</div>
+            </div>
+          </div>
+          <div class="round-output">↩ "Here are the PARKNSHOP offers for Kowloon Dairy…"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block reveal">
+      <div class="code-toolbar">
+        <span class="code-lang">Java</span>
+        <span class="code-file">BrandFinderAgent.java</span>
+      </div>
+      <pre><code><span class="cm">// A pure Java interface — LangChain4j generates the entire proxy at startup.</span>
+<span class="cm">// No implementation class exists. The @Agent name pins the agentId so the</span>
+<span class="cm">// supervisor's planner LLM always routes to this agent deterministically.</span>
+<span class="kw">public interface</span> <span class="cl">BrandFinderAgent</span> {
+
+  <span class="an">@SystemMessage</span>("""
+      Analyze the following user request and extract the brand name.
+
+      Steps:
+      1. Identify the brand name from the user request.
+      2. Call saveMemory ONCE with a concise sentence describing the user's brand interest,
+         e.g. "User is interested in Kowloon Dairy products".
+      3. Return ONLY the brand name as your final response.
+      """)
+  <span class="an">@UserMessage</span>("userRequest: {{userRequest}}")
+  <span class="cm">// name= pins the agentId — must match what supervisorBuilder enumerates in its system prompt.</span>
+  <span class="an">@Agent</span>(name = <span class="st">"BrandFinderAgent"</span>,
+         description = <span class="st">"Extracts the brand name from the user request text"</span>)
+  <span class="cl">String</span> <span class="mt">findBrandName</span>(<span class="an">@V</span>(<span class="st">"userRequest"</span>) <span class="cl">String</span> userRequest);
+}</code></pre>
+    </div>
+
+    <h3 class="sub-title">MessageWindowChatMemory — sized by contract</h3>
+
+    <p>
+      The memory window for each agent is sized to the maximum number of messages that agent can ever produce
+      in one invocation. Over-sizing wastes context; under-sizing evicts the system prompt.
+    </p>
+
+    <div class="step-flow reveal">
+      <div class="step">
+        <div class="step-num">Supervisor</div>
+        <div class="step-label">max 20 messages</div>
+        <div class="step-desc">Holds all planning rounds, sub-agent results, replanning cycles. Keyed by <strong>task ID</strong> — resets each request.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">BrandFinder</div>
+        <div class="step-label">max 5 messages</div>
+        <div class="step-desc">system + user + <code>saveMemory</code> call + result + final AI response.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">OfferFinder</div>
+        <div class="step-label">max 7 messages</div>
+        <div class="step-desc">system + user + <code>getOfferDetails</code> call/result + <code>saveMemory</code> call/result + final AI.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">GeneralQA</div>
+        <div class="step-label">max 5 messages</div>
+        <div class="step-desc">Same budget as BrandFinder — no tool calls for data retrieval.</div>
+      </div>
+    </div>
+
+    <div class="callout purple">
+      <p><strong>The AgenticScope bridge:</strong> sub-agent interfaces have fixed method signatures — 
+      there's nowhere to thread <code>userId</code> through as a parameter. LangChain4j's
+      <code>AgenticScope</code> solves this: <code>CustomAgentExecutor</code> writes identity into the scope
+      at request start; any downstream component reads it without the interface ever changing.</p>
+    </div>
+
+    <div class="diagram-card reveal">
+      <div class="diagram-title"><span>Full Sub-agent Execution with Memory Writes</span></div>
+      <div class="msg-flow">
+        <div class="msg-group">
+          <div class="msg-group-label">Planning Round 1 — extract brand name</div>
+          <div class="msg-item">
+            <div class="msg-num">1</div>
+            <div class="msg-actors"><span class="msg-actor a-sv">🎯 Supervisor</span><span class="msg-arrow">→</span><span class="msg-actor a-bf">BrandFinder</span></div>
+            <div class="msg-text"><code>findBrandName("Kowloon Dairy offers?")</code></div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">2</div>
+            <div class="msg-actors"><span class="msg-actor a-bf">BrandFinder</span><span class="msg-arrow">→</span><span class="msg-actor a-mt">AgentMemory Tool</span></div>
+            <div class="msg-text"><code>saveMemory("User interested in Kowloon Dairy products")</code> — LLM calls this @Tool exactly <em>once</em> per invocation</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">3</div>
+            <div class="msg-actors"><span class="msg-actor a-mt">AgentMemory Tool</span><span class="msg-arrow">→</span><span class="msg-actor a-mem0">🧠 Mem0</span></div>
+            <div class="msg-text"><code>POST /memories</code> — {topic: "brands", source: "BrandFinderAgent", userId: "aks"}</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">4</div>
+            <div class="msg-actors"><span class="msg-actor a-mem0">🧠 Mem0</span><span class="msg-arrow">↩</span><span class="msg-actor a-bf">BrandFinder</span></div>
+            <div class="msg-text">201 Created → <code>"Memory saved."</code> (returned to LLM, not to user)</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">5</div>
+            <div class="msg-actors"><span class="msg-actor a-bf">BrandFinder</span><span class="msg-arrow">↩</span><span class="msg-actor a-sv">🎯 Supervisor</span></div>
+            <div class="msg-text"><strong>"Kowloon Dairy"</strong></div>
+          </div>
+        </div>
+        <div class="msg-group blue">
+          <div class="msg-group-label">Planning Round 2 — fetch real offer data</div>
+          <div class="msg-item">
+            <div class="msg-num">6</div>
+            <div class="msg-actors"><span class="msg-actor a-sv">🎯 Supervisor</span><span class="msg-arrow">→</span><span class="msg-actor a-of">OfferFinder</span></div>
+            <div class="msg-text"><code>findOfferForBrands("Kowloon Dairy")</code></div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">7</div>
+            <div class="msg-actors"><span class="msg-actor a-of">OfferFinder</span><span class="msg-arrow">→</span><span class="msg-actor a-tl">OfferFinder Tools</span></div>
+            <div class="msg-text"><code>getOfferDetails("Kowloon Dairy")</code> — reads OfferService (backed by offer.json)</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">8</div>
+            <div class="msg-actors"><span class="msg-actor a-tl">OfferFinder Tools</span><span class="msg-arrow">↩</span><span class="msg-actor a-of">OfferFinder</span></div>
+            <div class="msg-text">PARKNSHOP offer list — price range $4–$36</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">9</div>
+            <div class="msg-actors"><span class="msg-actor a-of">OfferFinder</span><span class="msg-arrow">→</span><span class="msg-actor a-mt">AgentMemory Tool</span></div>
+            <div class="msg-text"><code>saveMemory("User checked PARKNSHOP Kowloon Dairy; price range $4–$36")</code></div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">10</div>
+            <div class="msg-actors"><span class="msg-actor a-mt">AgentMemory Tool</span><span class="msg-arrow">→</span><span class="msg-actor a-mem0">🧠 Mem0</span></div>
+            <div class="msg-text"><code>POST /memories</code> — {topic: "preferences", source: "OfferFinderAgent"}</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">11</div>
+            <div class="msg-actors"><span class="msg-actor a-of">OfferFinder</span><span class="msg-arrow">↩</span><span class="msg-actor a-sv">🎯 Supervisor</span></div>
+            <div class="msg-text">Formatted offer list</div>
+          </div>
+        </div>
+        <div class="msg-group green">
+          <div class="msg-group-label">Planning Round 3 — synthesise</div>
+          <div class="msg-item">
+            <div class="msg-num">12</div>
+            <div class="msg-actors"><span class="msg-actor a-sv">🎯 Supervisor</span><span class="msg-arrow">⟳</span><span class="msg-actor a-sv">🎯 Supervisor</span></div>
+            <div class="msg-text">No more delegation needed — compose final answer from results accumulated in MessageWindowChatMemory(20)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block reveal">
+      <div class="code-toolbar">
+        <span class="code-lang">Java</span>
+        <span class="code-file">AgentMemoryTool.java</span>
+      </div>
+      <pre><code><span class="cm">// Each sub-agent gets its own AgentMemoryTool instance wired with a fixed topic + source.</span>
+<span class="cm">// The @Tool description is what the LLM reads to decide WHEN to call this method.</span>
+<span class="an">@Tool</span>("Save a memory fact about the user to long-term storage. "
+    + "Call this once after completing your main task. "
+    + "Write a concise, factual sentence about what the user was interested in.")
+<span class="kw">public</span> <span class="cl">String</span> <span class="mt">saveMemory</span>(
+    <span class="an">@P</span>("Concise factual sentence, e.g. 'User is interested in Kowloon Dairy products'")
+    <span class="cl">String</span> content) {
+
+  <span class="cm">// userId resolved from ThreadLocal — NOT a method parameter.</span>
+  <span class="cm">// This keeps the agent interface signature fixed and testable in isolation.</span>
+  <span class="cl">String</span> userId = <span class="cl">UserContextHolder</span>.<span class="mt">get</span>()
+      .<span class="mt">map</span>(<span class="cl">UserContext</span>::userId)
+      .<span class="mt">orElse</span>(<span class="cl">UserContext</span>.<span class="nb">DEFAULT_USER_ID</span>);
+
+  <span class="kw">var</span> request = <span class="kw">new</span> <span class="cl">MemoryCreate</span>(
+      <span class="cl">List</span>.<span class="mt">of</span>(<span class="kw">new</span> <span class="cl">Message</span>(<span class="st">"user"</span>, content)),
+      userId, <span class="kw">null</span>, <span class="kw">null</span>,
+      <span class="cl">Map</span>.<span class="mt">of</span>(<span class="nb">META_TOPIC</span>, topic, <span class="nb">META_SOURCE</span>, source),  <span class="cm">// metadata tags</span>
+      mem0Properties.<span class="mt">infer</span>(),  <span class="cm">// infer=true: Mem0 runs its own LLM to extract semantic facts</span>
+      <span class="kw">null</span>, <span class="kw">null</span>
+  );
+  mem0Client.<span class="mt">addMemory</span>(request);
+  <span class="kw">return</span> <span class="st">"Memory saved."</span>;  <span class="cm">// returned to LLM, not the user</span>
+}</code></pre>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════ IDENTITY SECTION ══ -->
+<section class="section reveal" id="identity">
+  <div class="container">
+    <div class="section-label">Identity &amp; Context Propagation</div>
+    <h2 class="section-title">One identity, three sources, zero surprises</h2>
+
+    <p>
+      User identity must reach at least three independent places — the Mem0 read call,
+      the Mem0 write call, and the AgenticScope — without any of those components sharing
+      a call stack. A <code>ThreadLocal</code> carrier solves the synchronous path;
+      <code>AgenticScope</code> covers LangChain4j's async planner loops.
+    </p>
+
+    <div class="diagram-card reveal">
+      <div class="diagram-title"><span>UserContext Resolution — Three-Priority Chain</span></div>
+      <div class="priority-chain">
+        <div class="priority-item" style="--clr: var(--accent)">
+          <div class="priority-num">1</div>
+          <div class="priority-content">
+            <div class="priority-label">JWT Bearer Token <span style="font-size:.72rem;color:var(--accent);font-weight:400;">— highest priority</span></div>
+            <div class="priority-detail">
+              <code>Authorization: Bearer &lt;token&gt;</code> header parsed by <code>UserContextInterceptor.tryJwt()</code>.
+              Decodes the base64url payload, extracts <code>sub</code> as <em>userId</em> and a <code>countryCode</code> claim.
+              Runs in <code>preHandle</code> so identity is available before the A2A handler dispatches.
+            </div>
+            <div class="priority-code">UserContextHolder.set(new UserContext(sub, countryCode))</div>
+          </div>
+        </div>
+        <div class="priority-fallback"></div>
+        <div class="priority-item" style="--clr: var(--accent2)">
+          <div class="priority-num">2</div>
+          <div class="priority-content">
+            <div class="priority-label">Gateway Headers <span style="font-size:.72rem;color:var(--accent2);font-weight:400;">— Kong / API gateway proxy</span></div>
+            <div class="priority-detail">
+              <code>X-User-Id</code> + <code>X-Country-Code</code> headers set by an upstream gateway (e.g. Kong with JWT decode plugin).
+              Resolved by <code>tryGatewayHeaders()</code> when no JWT is present.
+              Common for internal microservice calls where the gateway strips the token.
+            </div>
+            <div class="priority-code">UserContextHolder.set(new UserContext(xUserId, xCountryCode))</div>
+          </div>
+        </div>
+        <div class="priority-fallback"></div>
+        <div class="priority-item" style="--clr: var(--accent3)">
+          <div class="priority-num">3</div>
+          <div class="priority-content">
+            <div class="priority-label">A2A message.metadata <span style="font-size:.72rem;color:var(--accent3);font-weight:400;">— agent-to-agent calls</span></div>
+            <div class="priority-detail">
+              When no HTTP headers are set — common when an AI agent calls Pulse HK as a sub-agent —
+              <code>message.metadata</code> carries <code>{"userId": "...", "countryCode": "..."}</code>.
+              Resolved inside <code>CustomAgentExecutor.execute()</code> via <code>UserContextResolver.resolve(message)</code>.
+            </div>
+            <div class="priority-code">UserContextHolder.set(UserContextResolver.resolve(message))</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:.2rem;">
+        <p><strong>Dual cleanup:</strong> <code>UserContextHolder.clear()</code> is called in both
+        <code>afterCompletion()</code> (interceptor) and the executor's <code>finally</code> block.
+        Defensive double-clearing because Spring Boot's executor may run on a different thread pool
+        than the HTTP handler — without it, a failed request could contaminate the next one.</p>
+      </div>
+    </div>
+
+    <div class="code-block reveal">
+      <div class="code-toolbar">
+        <span class="code-lang">Java</span>
+        <span class="code-file">CustomAgentExecutor.java</span>
+      </div>
+      <pre><code><span class="an">@Override</span>
+<span class="kw">public void</span> <span class="mt">execute</span>(<span class="cl">RequestContext</span> context, <span class="cl">EventQueue</span> eventQueue) <span class="kw">throws</span> <span class="cl">JSONRPCError</span> {
+  <span class="cl">TaskUpdater</span> updater = <span class="kw">new</span> <span class="cl">TaskUpdater</span>(context, eventQueue);
+  <span class="kw">try</span> {
+    <span class="kw">if</span> (context.<span class="mt">getTask</span>() == <span class="kw">null</span>) updater.<span class="mt">submit</span>();
+    updater.<span class="mt">startWork</span>();
+
+    <span class="cm">// Resolve identity in priority order:</span>
+    <span class="cm">// 1. JWT via UserContextInterceptor (already in ThreadLocal)</span>
+    <span class="cm">// 2. X-User-Id headers via UserContextInterceptor (already in ThreadLocal)</span>
+    <span class="cm">// 3. message.metadata fallback (set here)</span>
+    <span class="cl">UserContext</span> userContext = <span class="cl">UserContextResolver</span>.<span class="mt">resolve</span>(context.<span class="mt">getMessage</span>());
+
+    <span class="cm">// Scope key = userId: sub-agents read identity without method params</span>
+    <span class="mt">populateScope</span>(userContext.<span class="mt">userId</span>(), userContext);
+    <span class="cl">UserContextHolder</span>.<span class="mt">set</span>(userContext);
+
+    <span class="cl">String</span> response;
+    <span class="kw">try</span> {
+      response = customClientExecutorHandler.<span class="mt">execute</span>(context);
+    } <span class="kw">finally</span> {
+      <span class="cm">// Defensive clear: executor may run on a different thread from the HTTP handler</span>
+      <span class="cl">UserContextHolder</span>.<span class="mt">clear</span>();
+    }
+
+    updater.<span class="mt">addArtifact</span>(<span class="cl">List</span>.<span class="mt">of</span>(<span class="kw">new</span> <span class="cl">TextPart</span>(response)), <span class="kw">null</span>, <span class="kw">null</span>, <span class="kw">null</span>);
+    updater.<span class="mt">complete</span>();
+  } <span class="kw">catch</span> (<span class="cl">Exception</span> e) {
+    <span class="kw">throw new</span> <span class="cl">JSONRPCError</span>(-<span class="nb">32603</span>, <span class="st">"Agent execution failed: "</span> + e.<span class="mt">getMessage</span>(), <span class="kw">null</span>);
+  }
+}
+
+<span class="kw">private void</span> <span class="mt">populateScope</span>(<span class="cl">String</span> scopeKey, <span class="cl">UserContext</span> ctx) {
+  <span class="cl">AgenticScope</span> scope = <span class="mt">getOrCreateScope</span>(scopeKey);
+  scope.<span class="mt">writeState</span>(<span class="cl">UserContext</span>.<span class="nb">KEY_USER_ID</span>,      ctx.<span class="mt">userId</span>());
+  scope.<span class="mt">writeState</span>(<span class="cl">UserContext</span>.<span class="nb">KEY_COUNTRY_CODE</span>, ctx.<span class="mt">countryCode</span>());
+}
+
+<span class="kw">private</span> <span class="cl">AgenticScope</span> <span class="mt">getOrCreateScope</span>(<span class="cl">String</span> scopeKey) {
+  <span class="cl">AgenticScope</span> existing = supervisorAgent.<span class="mt">getAgenticScope</span>(scopeKey);
+  <span class="kw">if</span> (existing != <span class="kw">null</span>) <span class="kw">return</span> existing;
+  <span class="kw">if</span> (supervisorAgent <span class="kw">instanceof</span> <span class="cl">AgenticScopeOwner</span> owner)
+    <span class="kw">return</span> owner.<span class="mt">registry</span>().<span class="mt">create</span>(scopeKey);
+  <span class="kw">return</span> <span class="cl">DefaultAgenticScope</span>.<span class="mt">ephemeralAgenticScope</span>();  <span class="cm">// safety net</span>
+}</code></pre>
+    </div>
+
+    <div class="tags">
+      <span class="tag tag-orange">Priority 1: JWT Bearer</span>
+      <span class="tag tag-blue">Priority 2: X-User-Id header</span>
+      <span class="tag tag-green">Priority 3: A2A message.metadata</span>
+    </div>
+
+    <div class="callout">
+      <p><strong>ThreadLocal hygiene:</strong> <code>UserContextHolder.clear()</code> is called in
+      <em>two</em> places — <code>afterCompletion</code> (the interceptor) and the executor's
+      <code>finally</code> block — because in Spring Boot, the executor may run on a thread
+      from a different pool than the HTTP handler. Defensive double-clearing prevents state
+      leaking across requests on pooled threads.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════ MONITOR SECTION ══ -->
+<section class="section reveal" id="monitor">
+  <div class="container">
+    <div class="section-label">Observability</div>
+    <h2 class="section-title">The monitor that tells you everything</h2>
+
+    <p>
+      <code>AgentMonitor</code> is registered as a listener on the supervisor with
+      <code>inheritedBySubagents()</code> set to <code>true</code>, so it records
+      every invocation across the entire agent tree automatically — no per-agent wiring needed.
+    </p>
+
+    <div class="step-flow reveal">
+      <div class="step">
+        <div class="step-icon">🌐</div>
+        <div class="step-num">GET /agent-monitor/report</div>
+        <div class="step-label">HTML Waterfall</div>
+        <div class="step-desc">Self-contained page showing agent topology tree + timing waterfall for every execution. Open in browser.</div>
+      </div>
+      <div class="step">
+        <div class="step-icon">📋</div>
+        <div class="step-num">GET /agent-monitor/executions</div>
+        <div class="step-label">Plain-text tree</div>
+        <div class="step-desc">Full nested invocation tree. Filter by <code>?userId=alice</code> for per-user debugging.</div>
+      </div>
+      <div class="step">
+        <div class="step-icon">📊</div>
+        <div class="step-num">GET /agent-monitor/summary</div>
+        <div class="step-label">JSON stats</div>
+        <div class="step-desc">Per-user execution counts: successful, failed, and <strong>ongoing</strong> (non-zero means a stuck agent).</div>
+      </div>
+    </div>
+
+    <div class="screenshot-frame reveal">
+      <div class="screenshot-toolbar">
+        <div class="screenshot-dots">
+          <div class="screenshot-dot dot-r"></div>
+          <div class="screenshot-dot dot-y"></div>
+          <div class="screenshot-dot dot-g"></div>
+        </div>
+        <div class="screenshot-url">http://localhost:5001 &nbsp;·&nbsp; A2A Inspector — inspecting Pulse HK agent invocations</div>
+      </div>
+      <img class="screenshot-img" src="A2AInspector.png" alt="A2A Inspector showing Pulse HK agent execution timeline" />
+      <div class="screenshot-caption">
+        A2A Inspector — an open-source tool that visualises agent invocations in real time.
+        It connects to the <code>AgentMonitor</code> endpoint and renders the supervisor + sub-agent delegation tree alongside timing waterfalls for every <code>message/send</code> call.
+      </div>
+    </div>
+
+    <div class="diagram-card reveal">
+      <div class="diagram-title"><span>Monitor Data Flow — How Executions are Recorded and Retrieved</span></div>
+      <div class="msg-flow">
+        <div class="msg-group">
+          <div class="msg-group-label">Recording — happens automatically during every invoke()</div>
+          <div class="msg-item">
+            <div class="msg-num">1</div>
+            <div class="msg-actors"><span class="msg-actor a-sv">🎯 Supervisor</span><span class="msg-arrow">→</span><span class="msg-actor a-am">AgentMonitor</span></div>
+            <div class="msg-text"><code>onAgentStart(memoryId=taskId)</code> — opens a MonitoredExecution bucket keyed by taskId</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">2</div>
+            <div class="msg-actors"><span class="msg-actor a-sv">🎯 Supervisor</span><span class="msg-arrow">→</span><span class="msg-actor a-am">AgentMonitor</span></div>
+            <div class="msg-text"><code>onSubAgentInvoke → BrandFinder</code>, then <code>onSubAgentInvoke → OfferFinder</code> — nested tree recorded</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">3</div>
+            <div class="msg-actors"><span class="msg-actor a-sv">🎯 Supervisor</span><span class="msg-arrow">→</span><span class="msg-actor a-am">AgentMonitor</span></div>
+            <div class="msg-text"><code>onAgentEnd(result)</code> — closes the execution, computes duration, stores full tree</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">4</div>
+            <div class="msg-actors"><span class="msg-actor a-sv">🎯 Supervisor</span><span class="msg-arrow">⟳</span><span class="msg-actor a-sv">🎯 Supervisor</span></div>
+            <div class="msg-text"><code>agentMonitor.successfulExecutionsFor(taskId)</code> → logged as full execution report in console</div>
+          </div>
+        </div>
+        <div class="msg-group blue">
+          <div class="msg-group-label">Retrieval — three HTTP endpoints</div>
+          <div class="msg-item">
+            <div class="msg-num">A</div>
+            <div class="msg-actors"><span class="msg-actor a-dev">👩‍💻 Developer</span><span class="msg-arrow">→</span><span class="msg-actor a-mc">MonitorController</span></div>
+            <div class="msg-text"><code>GET /agent-monitor/report</code> → <code>HtmlReportGenerator.generateReport(agentMonitor)</code> → self-contained HTML with topology tree + waterfall timeline</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">B</div>
+            <div class="msg-actors"><span class="msg-actor a-dev">👩‍💻 Developer</span><span class="msg-arrow">→</span><span class="msg-actor a-mc">MonitorController</span></div>
+            <div class="msg-text"><code>GET /agent-monitor/executions?userId=aks</code> → plain-text nested execution tree filtered by userId</div>
+          </div>
+          <div class="msg-item">
+            <div class="msg-num">C</div>
+            <div class="msg-actors"><span class="msg-actor a-dev">👩‍💻 Developer</span><span class="msg-arrow">→</span><span class="msg-actor a-mc">MonitorController</span></div>
+            <div class="msg-text"><code>GET /agent-monitor/summary</code> → JSON: <code>{trackedUsers, users: [{userId, successful, failed, ongoing}]}</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block reveal">
+      <div class="code-toolbar">
+        <span class="code-lang">Java</span>
+        <span class="code-file">AgentMonitorController.java</span>
+      </div>
+      <pre><code><span class="an">@GetMapping</span>(value = <span class="st">"/report"</span>, produces = <span class="cl">MediaType</span>.<span class="nb">TEXT_HTML_VALUE</span>)
+<span class="kw">public</span> <span class="cl">String</span> <span class="mt">htmlReport</span>() {
+  <span class="cm">// HtmlReportGenerator is provided by LangChain4j.</span>
+  <span class="cm">// One endpoint, self-contained HTML — no external dashboard needed.</span>
+  <span class="kw">return</span> <span class="cl">HtmlReportGenerator</span>.<span class="mt">generateReport</span>(agentMonitor);
+}
+
+<span class="an">@GetMapping</span>(value = <span class="st">"/summary"</span>, produces = <span class="cl">MediaType</span>.<span class="nb">APPLICATION_JSON_VALUE</span>)
+<span class="kw">public</span> <span class="cl">Map</span>&lt;<span class="cl">String</span>, <span class="cl">Object</span>&gt; <span class="mt">summary</span>() {
+  <span class="cl">Set</span>&lt;<span class="cl">Object</span>&gt; ids = agentMonitor.<span class="mt">allMemoryIds</span>();
+  <span class="kw">return</span> <span class="cl">Map</span>.<span class="mt">of</span>(
+    <span class="st">"trackedUsers"</span>, ids.<span class="mt">size</span>(),
+    <span class="st">"users"</span>, ids.<span class="mt">stream</span>().<span class="mt">map</span>(id -&gt; <span class="cl">Map</span>.<span class="mt">of</span>(
+      <span class="st">"userId"</span>,     <span class="cl">String</span>.<span class="mt">valueOf</span>(id),
+      <span class="st">"successful"</span>, agentMonitor.<span class="mt">successfulExecutionsFor</span>(id).<span class="mt">size</span>(),
+      <span class="st">"failed"</span>,     agentMonitor.<span class="mt">failedExecutionsFor</span>(id).<span class="mt">size</span>(),
+      <span class="st">"ongoing"</span>,    agentMonitor.<span class="mt">ongoingExecutionFor</span>(id) != <span class="kw">null</span> ? <span class="nb">1</span> : <span class="nb">0</span>
+      <span class="cm">// ongoing &gt; 0 = stuck or in-flight agent — use for health checks</span>
+    )).<span class="mt">toList</span>()
+  );
+}</code></pre>
+    </div>
+
+    <div class="callout blue">
+      <p><strong>Why bucket by taskId, not userId?</strong> The monitor uses the <code>@MemoryId</code>
+      value — which is the A2A <em>task ID</em> — as the bucket key. Each request gets its own execution tree,
+      ideal for waterfall rendering. The <code>summary()</code> endpoint maps back to users by querying
+      <code>successfulExecutionsFor(userId)</code> across all known IDs.</p>
+    </div>
+
+
+    <div class="callout blue">
+      <p><strong>MonitoredExecution buckets:</strong> The monitor uses the <code>@MemoryId</code> value
+      as the bucket key. Because Pulse HK sets the <em>task ID</em> (not userId) as <code>@MemoryId</code>,
+      executions are bucketed per-request — ideal for waterfall rendering. The AgentMonitorController's
+      <code>summary()</code> endpoint still maps back to users because all task IDs for one user are
+      queried via <code>successfulExecutionsFor(userId)</code>.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ INSIGHTS + CODE ══ -->
+<section class="section reveal" id="insights">
+  <div class="container wide">
+    <div class="section-label">Design Decisions</div>
+    <h2 class="section-title">Six decisions that define the architecture</h2>
+    <p>Every non-trivial decision in Pulse HK enforces one of four invariants:
+    <strong>clean role separation</strong>, <strong>correct memory scoping</strong>,
+    <strong>safe identity propagation</strong>, and <strong>zero-surprise observability</strong>.
+    Each maps to a concrete line of code &mdash; not just a principle.</p>
+
+    <div class="insight-grid reveal">
+      <div class="insight-card" style="--clr: var(--accent)">
+        <div class="insight-title">🎯 Task ID as @MemoryId, not userId</div>
+        <div class="insight-body">The supervisor's <code>chatMemoryProvider</code> is keyed by the A2A <em>task ID</em>. Each request starts with a clean planning window. Two concurrent requests from the same user cannot corrupt each other's in-flight state. Cross-request personalisation is exclusively Mem0's job — a hard boundary enforced in code.</div>
+      </div>
+      <div class="insight-card" style="--clr: var(--accent2)">
+        <div class="insight-title">💬 Memories into the prompt, not chat history</div>
+        <div class="insight-body">An early prototype injected Mem0 memories as <code>SystemMessage</code> entries inside <code>getMessages()</code>. The planner hallucinated agent names from past brand names — routing a request to a fictitious <em>KelloggAgent</em>. Fix: <code>getMessages()</code> always returns <code>List.of()</code>; memories prepend the user message as factual context instead.</div>
+      </div>
+      <div class="insight-card" style="--clr: var(--accent3)">
+        <div class="insight-title">🧹 Memory windows sized by contract</div>
+        <div class="insight-body">Window size = maximum messages the agent produces in one invocation. <em>BrandFinder: 5</em> (system+user+call+result+AI), <em>OfferFinder: 7</em> (two tool call/result pairs), <em>Supervisor: 20</em> (multi-round planning). Deterministic sizing avoids token-budget tuning entirely — no per-model calibration needed.</div>
+      </div>
+      <div class="insight-card" style="--clr: var(--accent4)">
+        <div class="insight-title">🔗 ThreadLocal + AgenticScope dual identity</div>
+        <div class="insight-body"><code>ThreadLocal</code> covers the synchronous interceptor-to-tool path. <code>AgenticScope</code> covers LangChain4j's async planner loops where thread identity isn't guaranteed. Both are set at request start and cleared at end — in <em>two</em> places for defence-in-depth against thread-pool contamination.</div>
+      </div>
+      <div class="insight-card" style="--clr: var(--hot)">
+        <div class="insight-title">🧪 AgenticScopeAccess not SupervisorAgent</div>
+        <div class="insight-body">LangChain4j's built-in <code>SupervisorAgent</code> carries its own <code>@Agent invoke(String)</code>. Our <code>@MemoryId</code>-parameterised overload would trigger a "multiple agent methods" build error at startup. Extending <code>AgenticScopeAccess</code> only avoids this validation while still enabling scope wiring and registry access.</div>
+      </div>
+      <div class="insight-card" style="--clr: var(--accent2)">
+        <div class="insight-title">🌊 Topic-segmented Mem0 metadata</div>
+        <div class="insight-body">Every memory write carries <code>topic</code> + <code>source</code> metadata. Three parallel <code>POST /search</code> calls at retrieval time filter each topic bucket, assembling brand, preference, and general memories in clearly labelled sections — preventing the planner from treating past brand names as agent directives.</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">The critical memory boundary in code</h3>
+    <div class="code-block reveal">
+      <div class="code-toolbar">
+        <span class="code-lang">Java</span>
+        <span class="code-file">PulseChatMemoryStore.java &mdash; the architectural divide</span>
+      </div>
+      <pre><code><span class="an">@Override</span>
+<span class="kw">public</span> <span class="cl">List</span>&lt;<span class="cl">ChatMessage</span>&gt; <span class="mt">getMessages</span>(<span class="cl">Object</span> memoryId) {
+    <span class="cm">// INTENTIONALLY empty. Returning memories here injects them as SystemMessage</span>
+    <span class="cm">// entries into the supervisor chat history, causing planner hallucinations.</span>
+    <span class="cm">// Known failure mode: planner routes "Kellogg" query to fictitious KelloggAgent.</span>
+    <span class="cm">// Memories go into the *user message preamble* instead.</span>
+    <span class="kw">return</span> <span class="cl">List</span>.<span class="mt">of</span>();
+}
+
+<span class="kw">public</span> <span class="cl">String</span> <span class="mt">buildEnrichedPrompt</span>(<span class="cl">String</span> userId, <span class="cl">String</span> userMessage) {
+    <span class="cm">// Three parallel POST /search calls each with a metadata topic filter.</span>
+    <span class="cm">// Example filter payload:</span>
+    <span class="cm">// {"AND": [{"metadata.topic": "brands"}]}</span>
+    <span class="cm">//</span>
+    <span class="cm">// The assembled preamble is prepended to the user message:</span>
+    <span class="cm">//</span>
+    <span class="cm">//   Brand interests:</span>
+    <span class="cm">//   - User is interested in Kowloon Dairy products</span>
+    <span class="cm">//</span>
+    <span class="cm">//   Offer preferences:</span>
+    <span class="cm">//   - User checked PARKNSHOP Kowloon Dairy deals; price range $4-$36</span>
+    <span class="cm">//</span>
+    <span class="cm">//   User request: What are the offers for Kellogg?</span>
+    <span class="kw">return</span> <span class="mt">buildContextBlock</span>(brandMems, prefMems, generalMems) + userMessage;
+}</code></pre>
+    </div>
+
+    <h3 class="sub-title">Running the full stack locally</h3>
+    <div class="code-block reveal">
+      <div class="code-toolbar">
+        <span class="code-lang">BASH</span>
+        <span class="code-file">Quick Start</span>
+      </div>
+      <pre><code><span class="cm"># 1. Start Mem0 REST API (self-hosted)</span>
+mem0 serve --port 8000
+
+<span class="cm"># 2. Start Ollama with Qwen3</span>
+ollama run qwen3:latest
+
+<span class="cm"># 3. Run Pulse HK</span>
+./mvnw spring-boot:run
+
+<span class="cm"># 4. Send an A2A request with explicit identity headers</span>
+curl -X POST http://localhost:8081/offer/ \
+  -H "Content-Type: application/json" \
+  -H "X-User-Id: alice" \
+  -H "X-Country-Code: HK" \
+  -d '{"jsonrpc":"2.0","method":"message/send","id":1,
+       "params":{"message":{"role":"user","parts":[{"kind":"text","text":"Kowloon Dairy offers?"}]}}}'
+
+<span class="cm"># 5. Open live HTML execution report in browser</span>
+open http://localhost:8081/offer/agent-monitor/report
+
+<span class="cm"># 6. Per-user execution stats</span>
+curl http://localhost:8081/offer/agent-monitor/summary</code></pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════ FOOTER ══ -->
+<footer>
+  <div class="container">
+    <div class="footer-stack">
+      <span class="tag tag-orange">LangChain4j Agentic Services</span>
+      <span class="tag tag-green">Mem0 Self-Hosted</span>
+      <span class="tag tag-blue">A2A Protocol 0.3</span>
+      <span class="tag tag-purple">Spring Boot 3</span>
+      <span class="tag tag-orange">Ollama / Qwen3</span>
+    </div>
+    <p>Pulse HK Engineering · April 2026 · Built for the HK Lifestyle &amp; Shopping Experience</p>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════ Scripts ══ -->
+<script>
+  // ── Intersection Observer — scroll reveal ────────────────────────────────
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── Animated memory nodes — cycle highlight colours ──────────────────────
+  const memNodes = document.querySelectorAll('.mem-node');
+  const highlights = ['highlight-blue','highlight-green','highlight-orange','highlight-purple','highlight-green'];
+  let step = 0;
+  function cycleMemHighlight() {
+    memNodes.forEach((n, i) => {
+      n.classList.remove('highlight-orange','highlight-blue','highlight-green','highlight-purple');
+      const idx = (step + i) % highlights.length;
+      if (idx < highlights.length) n.classList.add(highlights[idx]);
+    });
+    step++;
+  }
+  setInterval(cycleMemHighlight, 1400);
+</script>
+</body>
+</html>
