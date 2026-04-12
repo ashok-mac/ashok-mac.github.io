@@ -22,6 +22,19 @@ excerpt: "A2A protocol complaint Agent Server that makes integrating with any co
 ### Spring A2A Server AutoConfiguration
 
  [Spring A2A Server AutoConfiguration](https://github.com/spring-ai-community/spring-ai-a2a/tree/main/spring-ai-a2a-server-autoconfigure)
- allows to declare [AgentCard](https://a2a-protocol.org/latest/specification/#441-agentcard), [AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java) for LangChain4j Agents.However the DefaultAgentExecutor of Spring AI A2A Server implementation by design expects **ChatClient** and **ChatClientExecutorHandler** which are specific to Spring's way of managing **ChatClient**.
+ allows to declare [AgentCard](https://a2a-protocol.org/latest/specification/#441-agentcard), [AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java) for LangChain4j Agents.However the **DefaultAgentExecutor** of Spring AI A2A Server implementation by design expects **ChatClient** and **ChatClientExecutorHandler** which are specific to Spring's way of managing the A2A Server implementation.
+
 
 ### LangChain4j Agent Executor
+
+[LangChain4jAgents](https://docs.langchain4j.dev/tutorials/agents/) allows to build agents using **Builder** pattern. 
+
+```code
+GeneralQAAgent generalQAAgent = AgenticServices
+                .agentBuilder(GeneralQAAgent.class)
+                .outputKey("answer")
+                .chatModel(chatModel)
+                .build();
+```
+
+To make this **GeneralQAAgent** to participate in **A2A** protocol, we can define custom **Langchain4jAgentExecutor** and **Langchain4jAgentExecutorHandler** 
