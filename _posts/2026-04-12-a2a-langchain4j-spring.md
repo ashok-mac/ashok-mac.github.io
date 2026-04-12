@@ -45,8 +45,8 @@ To make this **GeneralQAAgent** to participate in **A2A** protocol, we can defin
 
 Lets define two Functional Interface for handling the execution request from the **[AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java)**
 
-    - :sparkles: One which accepts **ChatModel** and **RequestContext**
-    - :sparkles: One which accepts **Agent** and **RequestContext**
+     ✨ One which accepts **ChatModel** and **RequestContext**
+     ✨ One which accepts **Agent** and **RequestContext**
 
 ```java
 @FunctionalInterface
