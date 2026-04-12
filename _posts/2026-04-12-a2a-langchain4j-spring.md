@@ -12,13 +12,8 @@ excerpt: "A2A protocol complaint Agent Server that makes integrating with any co
 > 🧠 Ollama / Qwen3  
 > 🔗 A2A Protocol 1.0
 
-**How to build an A2A complaint LangChain4j Agent Server**
-
-A deep dive into the architecture of Langchain4j Agent — A2A protocol exposure, and custom Agent Executor and Handler.
-
 ## Table of Contents
 - [Agent Card](#agent-card)
-
 
 ---
 
@@ -26,6 +21,7 @@ A deep dive into the architecture of Langchain4j Agent — A2A protocol exposure
 
 ### Spring A2A Server AutoConfiguration
 
-Spring A2A Server AutoConfiguration allows to declare AgentCard, AgentExecutor for LangChain4j Agents.However the DefaultAgentExecutor by design expects ChatClient and ChatClientExecutorHandler which are specific to Spring's way of managing ChatClient.
+ [Spring A2A Server AutoConfiguration](https://github.com/spring-ai-community/spring-ai-a2a/tree/main/spring-ai-a2a-server-autoconfigure)
+ allows to declare [AgentCard](https://a2a-protocol.org/latest/specification/#441-agentcard), [AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java) for LangChain4j Agents.However the DefaultAgentExecutor of Spring AI A2A Server implementation by design expects **ChatClient** and **ChatClientExecutorHandler** which are specific to Spring's way of managing **ChatClient**.
 
 ### LangChain4j Agent Executor
