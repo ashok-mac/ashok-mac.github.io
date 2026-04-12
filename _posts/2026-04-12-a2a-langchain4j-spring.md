@@ -17,7 +17,7 @@ excerpt: "A2A protocol complaint Agent Server that makes integrating with any co
 A deep dive into the architecture of Langchain4j Agent — A2A protocol exposure, and custom Agent Executor and Handler.
 
 ## Table of Contents
-- [System Context](#system-context)
+- [Agent Card](#agent-card)
 - [A2A Protocol: Why It Matters](#a2a-protocol-why-it-matters)
 - [Long-Term Memory: The Personalisation Loop](#long-term-memory-the-personalisation-loop)
 - [Orchestration: Supervisor → Sub-agent Topology](#orchestration-supervisor--sub-agent-topology)
@@ -28,8 +28,8 @@ A deep dive into the architecture of Langchain4j Agent — A2A protocol exposure
 
 ---
 
-## System Context
+## Agent Card
 
-### C4 · Level 1 — System Topology
+### Spring A2A Server AutoConfiguration
 
-The 10,000-foot view: Pulse HK exposes itself to the outside world as a single A2A agent endpoint. Clients — whether a mobile app, a developer script, or another AI agent — interact through a standard JSON-RPC envelope. Behind that single surface live three specialised sub-agents, a supervisor, a persistent memory store, and a local LLM.
+Spring A2A Server AutoConfiguration allows to declare AgentCard, AgentExecutor for LangChain4j Agents.However the DefaultAgentExecutor by design expects ChatClient and ChatClientExecutorHandler which are specific to Spring's way of managing ChatClient.
