@@ -33,3 +33,5 @@ A deep dive into the architecture of Langchain4j Agent — A2A protocol exposure
 ### Spring A2A Server AutoConfiguration
 
 Spring A2A Server AutoConfiguration allows to declare AgentCard, AgentExecutor for LangChain4j Agents.However the DefaultAgentExecutor by design expects ChatClient and ChatClientExecutorHandler which are specific to Spring's way of managing ChatClient.
+
+### LangChain4j Agent Executor
