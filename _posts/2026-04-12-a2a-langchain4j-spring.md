@@ -10,7 +10,7 @@ excerpt: "A2A protocol complaint Agent Server that makes integrating with any co
 > **Engineering Blog · April 2026**  
 > 📦 Spring Boot 4 · LangChain4j · SpringAI A2A Server\
 > 🧠 Ollama / Qwen3\
-> 🔗 **[A2A Protocol 1.0](https://a2a-protocol.org/latest/)**\ 
+> 🔗 **[A2A Protocol 1.0](https://a2a-protocol.org/latest/)** 
 
 ## Table of Contents
 - [Spring A2A Server AutoConfiguration](#spring-a2a-server-autoconfiguration)
@@ -46,7 +46,7 @@ To make this **GeneralQAAgent** to participate in **[A2A](https://a2a-protocol.o
 Lets define two **Functional Interface** for handling the execution request from the **[AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java)**
 
 ✨ One which accepts **ChatModel** and **RequestContext**\
-✨ One which accepts **Agent** and **RequestContext**\
+✨ One which accepts **Agent** and **RequestContext**
 
 ```java
 @FunctionalInterface
@@ -65,7 +65,7 @@ public interface Langchain4jAgentExecutorHandler {
 Lets define two custom **[AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java)** for handling the **[A2A](https://a2a-protocol.org/latest/)** client request 
 
 ✨ Langchain4jAgentExecutor\
-✨ Langchain4jChatModelExecutor\
+✨ Langchain4jChatModelExecutor
 
 Now these **Executors** can be used to integrate with **GeneralQAAgent** to make it particiapate in **[A2A](https://a2a-protocol.org/latest/)** protocol negotiation. 
 
@@ -85,3 +85,7 @@ Now these **Executors** can be used to integrate with **GeneralQAAgent** to make
     }
 
 ```
+
+## Langchain4j A2A Flow 
+
+
