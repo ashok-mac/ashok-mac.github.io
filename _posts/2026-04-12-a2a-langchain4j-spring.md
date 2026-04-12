@@ -18,13 +18,7 @@ A deep dive into the architecture of Langchain4j Agent — A2A protocol exposure
 
 ## Table of Contents
 - [Agent Card](#agent-card)
-- [A2A Protocol: Why It Matters](#a2a-protocol-why-it-matters)
-- [Long-Term Memory: The Personalisation Loop](#long-term-memory-the-personalisation-loop)
-- [Orchestration: Supervisor → Sub-agent Topology](#orchestration-supervisor--sub-agent-topology)
-- [Identity & Context Propagation](#identity--context-propagation)
-- [Observability: The Monitor](#observability-the-monitor)
-- [Six Key Design Decisions](#six-key-design-decisions)
-- [Running Locally](#running-the-full-stack-locally)
+
 
 ---
 
