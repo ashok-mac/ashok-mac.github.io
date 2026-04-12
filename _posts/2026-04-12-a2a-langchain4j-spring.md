@@ -15,7 +15,7 @@ excerpt: "A2A protocol complaint Agent Server that makes integrating with any co
 ## Table of Contents
 - [Spring A2A Server AutoConfiguration](#spring-a2a-server-autoconfiguration)
 - [LangChain4j Agent](#langchain4j-agent)
-- [LangChain4j Agent Executor & Handler](#langchain4j-agent-executor-&-handler)
+- [LangChain4j Agent Executor and Handler](#langchain4j-agent-executor-and-handler)
 
 ---
 
@@ -41,7 +41,7 @@ GeneralQAAgent generalQAAgent = AgenticServices
 
 To make this **GeneralQAAgent** to participate in **A2A** protocol, we can define custom **Langchain4jAgentExecutor** and **Langchain4jAgentExecutorHandler** 
 
-## LangChain4j Agent Executor & Handler
+## LangChain4j Agent Executor and Handler
 
 Lets define two Functional Interface for handling the execution request from the **[AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java)**
 
