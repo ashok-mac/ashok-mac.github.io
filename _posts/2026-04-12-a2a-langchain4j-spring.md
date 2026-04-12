@@ -8,9 +8,15 @@ excerpt: "A2A protocol complaint Agent Server that makes integrating with any co
 ---
 
 > **Engineering Blog · April 2026**  
+<<<<<<< HEAD
 > 📦 Spring Boot 4 · LangChain4j · SpringAI A2A Server\
 > 🧠 Ollama / Qwen3\
 > 🔗 **[A2A Protocol 1.0](https://a2a-protocol.org/latest/)** 
+=======
+> 📦 Spring Boot 4 · LangChain4j · SpringAI A2A Server
+> 🧠 Ollama / Qwen3  
+> 🔗 A2A Protocol 1.0
+>>>>>>> parent of b1153a9 (Update 2026-04-12-a2a-langchain4j-spring.md)
 
 ## Table of Contents
 - [Spring A2A Server AutoConfiguration](#spring-a2a-server-autoconfiguration)
@@ -22,12 +28,12 @@ excerpt: "A2A protocol complaint Agent Server that makes integrating with any co
 ## Spring A2A Server AutoConfiguration
 
  [Spring A2A Server AutoConfiguration](https://github.com/spring-ai-community/spring-ai-a2a/tree/main/spring-ai-a2a-server-autoconfigure)
- allows to declare [AgentCard](https://a2a-protocol.org/latest/specification/#441-agentcard), [AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java) for [LangChain4j](https://docs.langchain4j.dev/) Agents.However the **DefaultAgentExecutor** of Spring AI A2A Server implementation by design expects **ChatClient** and **ChatClientExecutorHandler** which are specific to Spring's way of managing the **[A2A Server](https://a2a-protocol.org/latest/)** implementation.
+ allows to declare [AgentCard](https://a2a-protocol.org/latest/specification/#441-agentcard), [AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java) for [LangChain4j](https://docs.langchain4j.dev/) Agents.However the **DefaultAgentExecutor** of Spring AI A2A Server implementation by design expects **ChatClient** and **ChatClientExecutorHandler** which are specific to Spring's way of managing the A2A Server implementation.
 
 
 ## LangChain4j Agent 
 
-Lets build an **[A2A](https://a2a-protocol.org/latest/)** Complaint LangChain4j Agent 
+Lets build an A2A Complaint LangChain4j Agents 
 
 [LangChain4jAgents](https://docs.langchain4j.dev/tutorials/agents/) allows to build agents using **Builder** pattern. **GeneralQAAgent** is a simple agent capable of managing **Q&A** queries from the customer backed by language model.
 
@@ -39,14 +45,19 @@ GeneralQAAgent generalQAAgent = AgenticServices
                 .build();
 ```
 
-To make this **GeneralQAAgent** to participate in **[A2A](https://a2a-protocol.org/latest/)** protocol, we can define custom **Langchain4jAgentExecutor** and **Langchain4jAgentExecutorHandler** 
+To make this **GeneralQAAgent** to participate in **A2A** protocol, we can define custom **Langchain4jAgentExecutor** and **Langchain4jAgentExecutorHandler** 
 
 ## LangChain4j Agent Executor and Handler
 
-Lets define two **Functional Interface** for handling the execution request from the **[AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java)**
+Lets define two Functional Interface for handling the execution request from the **[AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java)**
 
+<<<<<<< HEAD
 ✨ One which accepts **ChatModel** and **RequestContext**\
 ✨ One which accepts **Agent** and **RequestContext**
+=======
+     ✨ One which accepts **ChatModel** and **RequestContext**
+     ✨ One which accepts **Agent** and **RequestContext**
+>>>>>>> parent of b1153a9 (Update 2026-04-12-a2a-langchain4j-spring.md)
 
 ```java
 @FunctionalInterface
@@ -62,12 +73,17 @@ public interface Langchain4jAgentExecutorHandler {
 }
 ```
 
-Lets define two custom **[AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java)** for handling the **[A2A](https://a2a-protocol.org/latest/)** client request 
+Lets define two custom **AgentExecutor** for handling the **A2A** client request 
 
+<<<<<<< HEAD
 ✨ Langchain4jAgentExecutor\
 ✨ Langchain4jChatModelExecutor
+=======
+     ✨ Langchain4jAgentExecutor
+     ✨ Langchain4jChatModelExecutor
+>>>>>>> parent of b1153a9 (Update 2026-04-12-a2a-langchain4j-spring.md)
 
-Now these **Executors** can be used to integrate with **GeneralQAAgent** to make it particiapate in **[A2A](https://a2a-protocol.org/latest/)** protocol negotiation. 
+Now these **Executor** can be used to integrate with **GeneralQAAgent** to make it particiapate in **A2A** protocol negotiation. 
 
 ```code 
 @Bean
