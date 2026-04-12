@@ -61,3 +61,27 @@ public interface Langchain4jAgentExecutorHandler {
     String execute(Agent langchain4jAgent, RequestContext requestContext);
 }
 ```
+
+Lets define two custom **AgentExecutor** for handling the **A2A** client request 
+
+     ✨ Langchain4jAgentExecutor
+     ✨ Langchain4jChatModelExecutor
+
+Now these **Executor** can be used to integrate with **GeneralQAAgent** to make it particiapate in **A2A** protocol negotiation. 
+
+```code 
+@Bean
+    public AgentExecutor agentExecutor(ChatModel chatModel) {
+
+        GeneralQAAgent generalQAAgent = AgenticServices
+                .agentBuilder(GeneralQAAgent.class)
+                .outputKey("answer")
+                .chatModel(chatModel)
+                .build();
+        return new Langchain4jAgentExecutor(generalQAAgent, (_, requestContext) -> {
+            String userMessage = Langchain4jChatModelExecutor.extractTextFromMessage(requestContext.getMessage());
+            return generalQAAgent.answer(userMessage);
+        });
+    }
+
+```
