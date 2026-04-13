@@ -10,7 +10,7 @@ excerpt: "A2A protocol complaint Agent Server that makes integrating with any co
 > **Engineering Blog · April 2026**  
 > 📦 Spring Boot 4 · LangChain4j · SpringAI A2A Server\
 > 🧠 Ollama / Qwen3\
-> 🔗 **[A2A Protocol 1.0](https://a2a-protocol.org/latest/)**\ 
+> 🔗 **[A2A Protocol 1.0](https://a2a-protocol.org/latest/)** 
 
 ## Table of Contents
 - [Spring A2A Server AutoConfiguration](#spring-a2a-server-autoconfiguration)
@@ -27,9 +27,7 @@ excerpt: "A2A protocol complaint Agent Server that makes integrating with any co
 
 ## LangChain4j Agent 
 
-Lets build an **[A2A](https://a2a-protocol.org/latest/)** Complaint LangChain4j Agent 
-
-[LangChain4jAgents](https://docs.langchain4j.dev/tutorials/agents/) allows to build agents using **Builder** pattern. **GeneralQAAgent** is a simple agent capable of managing **Q&A** queries from the customer backed by language model.
+Lets build a simple **LangChain4j** Agent using [AgenticServices](https://docs.langchain4j.dev/tutorials/agents/) which allows to build agents using **Builder** pattern. **GeneralQAAgent** is a simple agent capable of managing **Q&A** queries from the customer backed by a language model.
 
 ```code
 GeneralQAAgent generalQAAgent = AgenticServices
@@ -46,15 +44,16 @@ To make this **GeneralQAAgent** to participate in **[A2A](https://a2a-protocol.o
 Lets define two **Functional Interface** for handling the execution request from the **[AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java)**
 
 ✨ One which accepts **ChatModel** and **RequestContext**\
-✨ One which accepts **Agent** and **RequestContext**\
+✨ One which accepts **Agent** and **RequestContext**
 
+**Langchain4jChatModelExecutorHandler**
 ```java
 @FunctionalInterface
 public interface Langchain4jChatModelExecutorHandler {
     String execute(ChatModel chatModel,RequestContext requestContext);
 }
 ```
-
+**Langchain4jAgentExecutorHandler**
 ```java
 @FunctionalInterface
 public interface Langchain4jAgentExecutorHandler {
@@ -64,25 +63,16 @@ public interface Langchain4jAgentExecutorHandler {
 
 Lets define two custom **[AgentExecutor](https://github.com/a2aproject/a2a-java/blob/main/server-common/src/main/java/org/a2aproject/sdk/server/agentexecution/AgentExecutor.java)** for handling the **[A2A](https://a2a-protocol.org/latest/)** client request 
 
-✨ Langchain4jAgentExecutor\
-✨ Langchain4jChatModelExecutor\
+✨ **Langchain4jAgentExecutor**\
+✨ **Langchain4jChatModelExecutor**
 
 Now these **Executors** can be used to integrate with **GeneralQAAgent** to make it particiapate in **[A2A](https://a2a-protocol.org/latest/)** protocol negotiation. 
 
-```code 
-@Bean
-    public AgentExecutor agentExecutor(ChatModel chatModel) {
 
-        GeneralQAAgent generalQAAgent = AgenticServices
-                .agentBuilder(GeneralQAAgent.class)
-                .outputKey("answer")
-                .chatModel(chatModel)
-                .build();
-        return new Langchain4jAgentExecutor(generalQAAgent, (_, requestContext) -> {
-            String userMessage = Langchain4jChatModelExecutor.extractTextFromMessage(requestContext.getMessage());
-            return generalQAAgent.answer(userMessage);
-        });
-    }
+# Langchain4jAgentExecutor - Sequence Flow
+
+```mermaid 
+
 
 ```
 
