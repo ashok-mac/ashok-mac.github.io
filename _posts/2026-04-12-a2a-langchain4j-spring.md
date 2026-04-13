@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Building A2A Agent using Langchain4J and SpringBoot"
+mermaid: true
 date: 2026-04-12 09:00:00 +0800
 categories: [engineering, ai, architecture, springboot,langchain4j]
 tags: [langchain4j,a2a-protocol, spring-boot, ollama, qwen3,dashscope]
@@ -40,7 +41,7 @@ graph LR
         ChatClient <--> ClientSDK
     end
 
-    subgraph Server ["LangChain4j AI Agent (A2A Server)"]
+    subgraph Server ["LangChain4j A2A Server"]
         direction TB
         AgentCardController[AgentCardController]:::component
         
