@@ -132,8 +132,6 @@ Lets define two custom **[AgentExecutor](https://github.com/a2aproject/a2a-java/
 Now these **Executors** can be used to integrate with **GeneralQAAgent** to make it particiapate in **[A2A](https://a2a-protocol.org/latest/)** protocol negotiation. 
 
 
-
-
 ## Final Outcome
 
 Using **Spring AI A2A Server** , we are successfully able to expose any Agent/AI Service applications built using **Langchain4j** as A2A Server 
