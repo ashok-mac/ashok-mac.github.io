@@ -136,5 +136,4 @@ Now these **Executors** can be used to integrate with **GeneralQAAgent** to make
 
 ## Final Outcome
 
-- Value1 
-- Value2
+Using **Spring AI A2A Server** , we are successfully able to expose any Agent/AI Service applications built using **Langchain4j** as A2A Server 
